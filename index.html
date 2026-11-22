@@ -179,6 +179,9 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 @keyframes snowfall { to { transform: translate(var(--drift), 105vh) rotate(180deg); } }
 @media (prefers-reduced-motion: reduce) { .snow { display: none; } }
 #app, #lock, #nameScreen { position: relative; z-index: 1; }
+.member-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: min(55vh, 460px); overflow-y: auto; }
+.member { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.member:last-child { border-bottom: 0; }
 </style>
 </head>
 <body>
@@ -401,6 +404,17 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
   </form>
 </dialog>
 
+<!-- Medlemmar (admin) -->
+<dialog id="membersDialog" aria-labelledby="membersTitle">
+  <div class="stack">
+    <h2 id="membersTitle">Medlemmar</h2>
+    <p class="muted small" id="memberCount"></p>
+    <ul class="member-list" id="memberList"></ul>
+    <p class="muted small">Varje telefon eller webbläsare som har öppnat kalendern räknas för sig, med namnet personen har skrivit. Den som använder två enheter syns därför två gånger. Vill du stänga ute någon: byt gästkod under Mer.</p>
+    <button class="btn" type="button" data-action="close-dialog">Stäng</button>
+  </div>
+</dialog>
+
 <!-- Byt namn -->
 <dialog id="renameDialog" aria-labelledby="renameTitle">
   <form id="renameForm" class="stack" method="dialog">
@@ -438,6 +452,7 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
       <p class="muted small">Admins publicerar tider, svarar på förfrågningar och får notiser om alla bokningar.</p>
       <ul class="admin-list" id="adminList"></ul>
       <button class="btn" type="button" data-action="add-admin">+ Lägg till admin</button>
+      <button class="btn" type="button" data-action="members" aria-haspopup="dialog">Visa alla medlemmar</button>
     </div>
     <div class="stack tight-stack" id="menuClaim" hidden>
       <p class="muted small">Kalendern har ingen admin än. Den som sköter bastun kan bli admin och få en adminkod.</p>
@@ -665,6 +680,7 @@ window.BASTU_CONFIG = {
     show("app");
     load();
     rebindPush();
+    rpc("bastu_hello", withCode({ p_device: device, p_name: myName })).catch(() => {});
   }
 
   /* ---------- list ---------- */
@@ -1247,6 +1263,31 @@ window.BASTU_CONFIG = {
     btn.disabled = false;
   });
 
+  /* ---------- medlemmar (admin) ---------- */
+  function ago(d) {
+    const days = Math.floor((Date.now() - new Date(d)) / DAY);
+    if (dayKey(d) === dayKey(new Date())) return "idag";
+    if (dayKey(d) === dayKey(Date.now() - DAY)) return "igår";
+    if (days < 14) return `för ${days} dagar sedan`;
+    if (days < 60) return `för ${Math.floor(days / 7)} veckor sedan`;
+    return new Date(d).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" });
+  }
+  async function openMembers() {
+    const list = $("#memberList");
+    list.innerHTML = `<li class="muted small">Hämtar…</li>`;
+    $("#memberCount").textContent = "";
+    $("#membersDialog").showModal();
+    try {
+      const ms = await rpc("bastu_list_members", withCode({ p_device: device }));
+      const guests = ms.filter(m => !m.admin).length, admins = ms.length - guests;
+      $("#memberCount").textContent = `${ms.length} ${ms.length === 1 ? "medlem" : "medlemmar"}: ${admins} ${admins === 1 ? "admin" : "admins"} och ${guests} ${guests === 1 ? "gäst" : "gäster"}.`;
+      list.innerHTML = ms.length ? ms.map(m => `<li class="member">
+          <div><b>${esc(m.name || "Namnlös")}</b>${m.me ? " (du)" : ""}${m.admin ? ` <span class="role">Admin</span>` : ""}</div>
+          <div class="muted small">Senast inne ${esc(ago(m.last_seen))}${m.upcoming ? ` · ${m.upcoming} ${m.upcoming === 1 ? "bokad tid" : "bokade tider"}` : ""} · ${m.notifications ? "Notiser på" : "Notiser av"}</div>
+        </li>`).join("") : `<li class="muted small">Ingen har öppnat kalendern än.</li>`;
+    } catch (e) { list.innerHTML = `<li class="muted small">${esc(errText(e))}</li>`; }
+  }
+
   /* ---------- admins ---------- */
   async function loadAdmins() {
     const list = $("#adminList");
@@ -1336,6 +1377,7 @@ window.BASTU_CONFIG = {
       case "hide-create": return lockView("join");
       case "share": return share();
       case "new-guest-code": return newGuestCode();
+      case "members": return openMembers();
       case "copy-owner": return copy(created?.owner_code || code, "Adminkoden är kopierad. Spara den på ett säkert ställe.");
       case "add-admin": return openAddAdmin();
       case "share-admin": return shareAdmin();
@@ -1398,6 +1440,7 @@ window.BASTU_CONFIG = {
     $("#meName").textContent = n;
     $("#renameDialog").close();
     try { await rpc("bastu_rename_me", withCode({ p_name: n, p_device: device })); } catch {}
+    rpc("bastu_hello", withCode({ p_device: device, p_name: n })).catch(() => {});
     if (isOwner()) rpc("bastu_rename_admin", withCode({ p_name: n })).catch(() => {});
     toast("Namnet är ändrat.");
     load();
