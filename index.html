@@ -511,7 +511,7 @@ window.BASTU_CONFIG = {
     if (!res.ok) {
       const msg = body?.message || "";
       const known = ["wrong_code", "admin_only", "last_admin", "too_many_admins", "full", "already_booked", "already_answered", "in_the_past", "not_found",
-        "end_before_start", "name_required", "too_many_requests", "has_owner", "not_full", "waitlist_full", "below_booked", "bad_capacity", "too_early", "already_warm", "empty_message", "too_fast"];
+        "end_before_start", "name_required", "too_many_requests", "has_owner", "not_full", "waitlist_full", "below_booked", "bad_capacity", "too_early", "already_warm", "empty_message", "too_fast", "no_subscription"];
       throw new ApiError(known.find(k => msg.includes(k)) || (body?.code === "PGRST202" ? "not_installed" : "server"), msg);
     }
     return body;
@@ -541,7 +541,8 @@ window.BASTU_CONFIG = {
       too_early: "Det går tidigast tre timmar före passet.",
       already_warm: "Alla har redan fått veta att bastun är varm.",
       empty_message: "Skriv något först.",
-      too_fast: "Du skickar väldigt många meddelanden. Vänta en stund.",
+      too_fast: "Vänta en liten stund och försök igen.",
+      no_subscription: "Notiserna är inte påslagna på den här enheten. Slå på dem först.",
     }[e?.code] || "Något gick fel. Försök igen.";
   }
 
@@ -1175,7 +1176,21 @@ window.BASTU_CONFIG = {
       body.innerHTML = `<p>Den här webbläsaren kan inte ta emot notiser. Prova Safari, Chrome, Edge eller Firefox.</p>`;
     } else {
       const on = !!(await currentSubscription().catch(() => null)) && Notification.permission === "granted";
-      body.innerHTML = `<button class="btn ${on ? "" : "primary"}" type="button" id="pushToggle">${on ? "Stäng av notiser" : "Slå på notiser"}</button>`;
+      body.innerHTML = `${on ? `<button class="btn primary" type="button" id="pushTest">Skicka testnotis</button>
+        <p class="muted small">Lås gärna telefonen direkt efter, så ser du notisen som den kommer.</p>` : ""}
+        <button class="btn ${on ? "" : "primary"}" type="button" id="pushToggle">${on ? "Stäng av notiser" : "Slå på notiser"}</button>`;
+      $("#pushTest")?.addEventListener("click", async ev => {
+        const b = ev.currentTarget; b.disabled = true; msg.hidden = true;
+        try {
+          // Spara prenumerationen igen först, så att servern säkert har den senaste.
+          const sub = await currentSubscription();
+          if (sub) await rpc("bastu_save_subscription", withCode({ p_sub: sub.toJSON(), p_device: device }));
+          await rpc("bastu_test_push", withCode({ p_device: device, p_name: myName }));
+          msg.hidden = false;
+          msg.textContent = "Testnotisen är skickad och ska komma inom några sekunder. Kommer den inte: kolla Stör ej och fokuslägen, och på iPhone att appen är öppnad från hemskärmen.";
+        } catch (er) { msg.hidden = false; msg.textContent = errText(er); }
+        setTimeout(() => { b.disabled = false; }, 3000);
+      });
       if (Notification.permission === "denied") {
         $("#pushToggle").disabled = true;
         msg.hidden = false; msg.textContent = "Notiser är blockerade för den här sidan. Tillåt dem i telefonens eller webbläsarens inställningar.";
@@ -1184,7 +1199,7 @@ window.BASTU_CONFIG = {
         const b = ev.currentTarget; b.disabled = true; msg.hidden = true;
         try {
           if (on) { await disablePush(); toast("Notiserna är avstängda."); }
-          else { await enablePush(); toast("Notiserna är på."); }
+          else { await enablePush(); toast("Notiserna är på. Tryck på Notiser igen för att skicka en testnotis."); }
           $("#notifyDialog").close();
           updateNotifyBtn();
         } catch (er) {
