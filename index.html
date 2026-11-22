@@ -137,6 +137,10 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 .queue b { color: var(--ink); }
 .admin-links { display: inline-flex; gap: 12px; flex-wrap: wrap; }
 .slot-main { display: flex; gap: 8px; flex-wrap: wrap; }
+.name-remove { font: inherit; font-size: .95rem; background: var(--accent-soft); color: var(--ink); border: 0; border-radius: 999px; padding: 3px 10px; min-height: 32px; cursor: pointer; }
+.names li:has(> .name-remove) { background: none; padding: 0; }
+.warm-badge { margin: 0; font-weight: 700; color: var(--accent); }
+.btn.warm { align-self: flex-start; }
 </style>
 </head>
 <body>
@@ -318,6 +322,19 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
   </form>
 </dialog>
 
+<!-- Boka åt någon (admin) -->
+<dialog id="bookForDialog" aria-labelledby="bookForTitle">
+  <form id="bookForForm" class="stack" method="dialog" novalidate>
+    <h2 id="bookForTitle">Boka åt någon</h2>
+    <p class="muted small" id="bfWhat"></p>
+    <label for="bfName">Namn<input id="bfName" maxlength="40" required autocomplete="off" placeholder="t.ex. Farmor"></label>
+    <label for="bfSeats">Antal personer<input id="bfSeats" type="number" min="1" max="20" value="1" required inputmode="numeric"></label>
+    <p class="muted small">Bokningen syns med namnet. En admin kan ta bort den.</p>
+    <p class="err" id="bfErr" role="alert"></p>
+    <div class="row"><button class="btn" type="button" data-action="close-dialog">Avbryt</button><button class="btn primary" type="submit" id="bfBtn">Boka</button></div>
+  </form>
+</dialog>
+
 <!-- Byt namn -->
 <dialog id="renameDialog" aria-labelledby="renameTitle">
   <form id="renameForm" class="stack" method="dialog">
@@ -336,6 +353,7 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
       <p class="muted small">Gästkod – dela med dem som ska boka</p>
       <p class="code-box" id="menuCode"></p>
       <button class="btn" type="button" data-action="share">Dela gästlänk</button>
+      <button class="link" type="button" data-action="new-guest-code" id="newGuestCode" hidden>Byt gästkod</button>
     </div>
     <div class="stack tight-stack" id="menuOwner" hidden>
       <p class="muted small">Din adminkod – behåll den själv</p>
@@ -420,7 +438,7 @@ window.BASTU_CONFIG = {
     if (!res.ok) {
       const msg = body?.message || "";
       const known = ["wrong_code", "admin_only", "last_admin", "too_many_admins", "full", "already_booked", "already_answered", "in_the_past", "not_found",
-        "end_before_start", "name_required", "too_many_requests", "has_owner", "not_full", "waitlist_full", "below_booked", "bad_capacity"];
+        "end_before_start", "name_required", "too_many_requests", "has_owner", "not_full", "waitlist_full", "below_booked", "bad_capacity", "too_early", "already_warm"];
       throw new ApiError(known.find(k => msg.includes(k)) || (body?.code === "PGRST202" ? "not_installed" : "server"), msg);
     }
     return body;
@@ -447,6 +465,8 @@ window.BASTU_CONFIG = {
       waitlist_full: "Kön är full.",
       below_booked: "Fler har redan tackat ja än så många platser.",
       bad_capacity: "Antal platser ska vara mellan 1 och 20.",
+      too_early: "Det går tidigast tre timmar före passet.",
+      already_warm: "Alla har redan fått veta att bastun är varm.",
     }[e?.code] || "Något gick fel. Försök igen.";
   }
 
@@ -550,8 +570,16 @@ window.BASTU_CONFIG = {
     const status = full ? `<span class="status full">Fullbokad</span>`
       : `<span class="status free">${left === 1 ? "1 ledig plats" : `${left} lediga platser`} av ${s.capacity}</span>`;
     const names = taken
-      ? `<ul class="names" aria-label="Har tackat ja">${s.bookings.map(b => `<li class="${b.mine ? "me" : ""}">${esc(b.name)}${b.seats > 1 ? ` +${b.seats - 1}` : ""}${b.mine ? " (du)" : ""}</li>`).join("")}</ul>`
+      ? `<ul class="names" aria-label="Har tackat ja">${s.bookings.map(b => {
+          const label = `${esc(b.name)}${b.seats > 1 ? ` +${b.seats - 1}` : ""}${b.mine ? " (du)" : ""}`;
+          return isOwner() && !b.mine
+            ? `<li><button class="name-remove" type="button" data-unbook="${esc(b.id)}" data-name="${esc(b.name)}" aria-label="Ta bort ${esc(b.name)}s bokning">${label} <span aria-hidden="true">×</span></button></li>`
+            : `<li class="${b.mine ? "me" : ""}">${label}</li>`;
+        }).join("")}</ul>`
       : `<p class="muted small">Ingen har tackat ja än.</p>`;
+    const startsSoon = new Date(s.starts_at) - Date.now() <= 3 * 3600e3;
+    const warm = s.warm_at ? `<p class="warm-badge">Bastun är varm</p>`
+      : isOwner() && startsSoon && taken ? `<button class="btn warm" type="button" data-warm="${esc(s.id)}">Bastun är varm</button>` : "";
     const queue = s.waitlist || [];
     const myPlace = queue.findIndex(w => w.mine) + 1;
     const queueInfo = queue.length
@@ -571,9 +599,11 @@ window.BASTU_CONFIG = {
       <div class="seats" aria-hidden="true">${seats}</div>
       ${names}
       ${queueInfo}
+      ${warm}
       <div class="slot-actions">
         <span class="slot-main">${action}</span>
-        ${isOwner() ? `<span class="admin-links"><button class="link" type="button" data-edit="${esc(s.id)}" aria-label="Ändra tiden ${esc(when)}">Ändra</button>
+        ${isOwner() ? `<span class="admin-links">${full ? "" : `<button class="link" type="button" data-bookfor="${esc(s.id)}" aria-label="Boka åt någon ${esc(when)}">Boka åt någon</button>`}
+          <button class="link" type="button" data-edit="${esc(s.id)}" aria-label="Ändra tiden ${esc(when)}">Ändra</button>
           <button class="link" type="button" data-delete="${esc(s.id)}" aria-label="Ta bort tiden ${esc(when)}">Ta bort tiden</button></span>` : ""}
       </div>
     </article>`;
@@ -678,6 +708,50 @@ window.BASTU_CONFIG = {
     const a = Object.assign(document.createElement("a"), { href: url, download: `bastu-${dayKey(s.starts_at)}.ics` });
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  async function unbook(bookingId, name) {
+    if (!(await confirmBox(`Ta bort ${name}s bokning? ${name} får en notis om notiserna är påslagna.`, "Ta bort"))) return;
+    try { await rpc("bastu_admin_cancel", withCode({ p_booking_id: bookingId, p_name: myName, p_device: device })); toast(`${name}s bokning är borttagen.`); }
+    catch (e) { toast(errText(e)); }
+    await load();
+  }
+  async function announceWarm(slotId, btn) {
+    const s = state.slots.find(x => x.id === slotId);
+    if (!(await confirmBox(`Skicka "Bastun är varm" till alla som har bokat ${s ? `kl. ${timeOf(s.starts_at)}` : "tiden"}?`, "Skicka"))) return;
+    btn.disabled = true;
+    try { await rpc("bastu_announce_warm", withCode({ p_slot_id: slotId, p_name: myName, p_device: device })); toast("Klart! Alla som har bokat har fått en notis."); }
+    catch (e) { toast(errText(e)); }
+    await load();
+  }
+  let bookingFor = null;
+  function openBookFor(slotId) {
+    const s = state.slots.find(x => x.id === slotId); if (!s) return;
+    bookingFor = slotId;
+    const left = s.capacity - s.bookings.reduce((n, b) => n + (b.seats || 1), 0);
+    $("#bfWhat").textContent = span(s);
+    $("#bfName").value = ""; $("#bfSeats").value = 1; $("#bfSeats").max = left; $("#bfErr").textContent = "";
+    $("#bookForDialog").showModal(); $("#bfName").focus();
+  }
+  $("#bookForForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const n = $("#bfName").value.trim(), k = parseInt($("#bfSeats").value, 10);
+    if (!n) { $("#bfErr").textContent = "Skriv ett namn."; $("#bfName").focus(); return; }
+    if (!(k >= 1 && k <= 20)) { $("#bfErr").textContent = "Antal personer ska vara mellan 1 och 20."; $("#bfSeats").focus(); return; }
+    const btn = $("#bfBtn"); btn.disabled = true;
+    try {
+      await rpc("bastu_admin_book", withCode({ p_slot_id: bookingFor, p_guest_name: n, p_seats: k, p_name: myName, p_device: device }));
+      $("#bookForDialog").close(); toast(`${n} är bokad.`); await load();
+    } catch (er) { $("#bfErr").textContent = er.code === "full" ? "Det finns inte så många lediga platser." : errText(er); }
+    btn.disabled = false;
+  });
+  async function newGuestCode() {
+    if (!(await confirmBox("Skapa en ny gästkod? Den gamla slutar fungera direkt, så alla gäster behöver den nya länken. Bokningarna finns kvar.", "Skapa ny kod"))) return;
+    try {
+      const { code: c } = await rpc("bastu_new_guest_code", withCode({}));
+      state.info.guest_code = c;
+      $("#menuCode").textContent = c;
+      toast("Ny gästkod. Dela den nya länken med dem som ska boka.");
+    } catch (e) { toast(errText(e)); }
   }
   async function removeSlot(slotId) {
     const s = state.slots.find(x => x.id === slotId);
@@ -935,6 +1009,7 @@ window.BASTU_CONFIG = {
     const g = guestCode();
     $("#menuGuest").hidden = !g;
     $("#menuCode").textContent = g;
+    $("#newGuestCode").hidden = !isOwner();
     $("#menuOwner").hidden = !ownerCode;
     $("#menuOwnerCode").textContent = ownerCode;
     $("#menuAdmins").hidden = !isOwner();
@@ -1011,6 +1086,9 @@ window.BASTU_CONFIG = {
     if (t.dataset.cancel) return cancel(t.dataset.cancel, t);
     if (t.dataset.delete) return removeSlot(t.dataset.delete);
     if (t.dataset.edit) return openPublish(state.slots.find(x => x.id === t.dataset.edit));
+    if (t.dataset.unbook) return unbook(t.dataset.unbook, t.dataset.name);
+    if (t.dataset.warm) return announceWarm(t.dataset.warm, t);
+    if (t.dataset.bookfor) return openBookFor(t.dataset.bookfor);
     if (t.dataset.join) return joinQueue(t.dataset.join, t);
     if (t.dataset.leave) return leaveQueue(t.dataset.leave, t);
     if (t.dataset.ics) return addToCalendar(t.dataset.ics);
@@ -1026,6 +1104,7 @@ window.BASTU_CONFIG = {
       case "show-create": return lockView("create");
       case "hide-create": return lockView("join");
       case "share": return share();
+      case "new-guest-code": return newGuestCode();
       case "copy-owner": return copy(created?.owner_code || code, "Adminkoden är kopierad. Spara den på ett säkert ställe.");
       case "add-admin": return openAddAdmin();
       case "share-admin": return shareAdmin();
