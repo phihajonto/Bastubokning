@@ -132,6 +132,11 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 dialog h3 { font-size: 1.05rem; margin: 0; }
 .admin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .admin-list li { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; }
+
+.queue { margin: 0; color: var(--muted); }
+.queue b { color: var(--ink); }
+.admin-links { display: inline-flex; gap: 12px; flex-wrap: wrap; }
+.slot-main { display: flex; gap: 8px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -241,7 +246,8 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
     </div>
     <label for="pCap">Antal platser<input id="pCap" type="number" min="1" max="20" required value="4" inputmode="numeric"></label>
     <label for="pNote"><span>Anteckning <span class="muted">(valfritt)</span></span><input id="pNote" maxlength="120" placeholder="t.ex. Damtid eller Familjebastu"></label>
-    <fieldset class="repeat">
+    <p class="muted small" id="pEditNote" hidden>Bokningarna följer med. Flyttas tiden får de som har bokat en notis.</p>
+    <fieldset class="repeat" id="pRepeatBox">
       <legend class="sr-only">Upprepning</legend>
       <label class="check"><input type="checkbox" id="pRepeat"> Upprepa varje vecka</label>
       <label for="pWeeks" id="pWeeksLabel" hidden>Antal veckor
@@ -414,7 +420,7 @@ window.BASTU_CONFIG = {
     if (!res.ok) {
       const msg = body?.message || "";
       const known = ["wrong_code", "admin_only", "last_admin", "too_many_admins", "full", "already_booked", "already_answered", "in_the_past", "not_found",
-        "end_before_start", "name_required", "too_many_requests", "has_owner"];
+        "end_before_start", "name_required", "too_many_requests", "has_owner", "not_full", "waitlist_full", "below_booked", "bad_capacity"];
       throw new ApiError(known.find(k => msg.includes(k)) || (body?.code === "PGRST202" ? "not_installed" : "server"), msg);
     }
     return body;
@@ -437,6 +443,10 @@ window.BASTU_CONFIG = {
       has_owner: "Kalendern har redan en admin.",
       offline: "Ingen anslutning. Försök igen när du är online.",
       not_installed: "Bokningen är inte färdiginstallerad i databasen än.",
+      not_full: "Det finns en ledig plats. Tacka ja i stället.",
+      waitlist_full: "Kön är full.",
+      below_booked: "Fler har redan tackat ja än så många platser.",
+      bad_capacity: "Antal platser ska vara mellan 1 och 20.",
     }[e?.code] || "Något gick fel. Försök igen.";
   }
 
@@ -542,9 +552,16 @@ window.BASTU_CONFIG = {
     const names = taken
       ? `<ul class="names" aria-label="Har tackat ja">${s.bookings.map(b => `<li class="${b.mine ? "me" : ""}">${esc(b.name)}${b.seats > 1 ? ` +${b.seats - 1}` : ""}${b.mine ? " (du)" : ""}</li>`).join("")}</ul>`
       : `<p class="muted small">Ingen har tackat ja än.</p>`;
+    const queue = s.waitlist || [];
+    const myPlace = queue.findIndex(w => w.mine) + 1;
+    const queueInfo = queue.length
+      ? `<p class="small queue">${myPlace ? `<b>Du är nummer ${myPlace} i kön.</b> Blir en plats ledig får du den direkt, och en notis om du har slagit på notiser.`
+        : `I kö: ${queue.map(w => esc(w.name)).join(", ")}`}</p>` : "";
     let action;
-    if (mineBooking) action = `<button class="btn" type="button" data-cancel="${esc(mineBooking.id)}" aria-label="Avboka ${esc(when)}">Avboka</button>`;
-    else if (full) action = `<button class="btn" type="button" disabled>Fullbokad</button>`;
+    if (mineBooking) action = `<button class="btn" type="button" data-cancel="${esc(mineBooking.id)}" aria-label="Avboka ${esc(when)}">Avboka</button>
+      <button class="btn" type="button" data-ics="${esc(s.id)}" aria-label="Lägg ${esc(when)} i kalendern">Lägg i kalendern</button>`;
+    else if (myPlace) action = `<button class="btn" type="button" data-leave="${esc(s.id)}" aria-label="Lämna kön till ${esc(when)}">Lämna kön</button>`;
+    else if (full) action = `<button class="btn primary" type="button" data-join="${esc(s.id)}" aria-label="Ställ dig i kö till ${esc(when)}">Ställ dig i kö</button>`;
     else action = `<button class="btn primary" type="button" data-book="${esc(s.id)}" aria-label="Tacka ja till ${esc(when)}">Tacka ja</button>`;
     return `<article class="slot ${full ? "is-full" : ""} ${mineBooking ? "is-mine" : ""}" aria-label="${esc(`${timeOf(s.starts_at)} till ${timeOf(s.ends_at)}`)}">
       <div class="slot-head">
@@ -553,9 +570,11 @@ window.BASTU_CONFIG = {
       </div>
       <div class="seats" aria-hidden="true">${seats}</div>
       ${names}
+      ${queueInfo}
       <div class="slot-actions">
-        ${action}
-        ${isOwner() ? `<button class="link" type="button" data-delete="${esc(s.id)}" aria-label="Ta bort tiden ${esc(when)}">Ta bort tiden</button>` : ""}
+        <span class="slot-main">${action}</span>
+        ${isOwner() ? `<span class="admin-links"><button class="link" type="button" data-edit="${esc(s.id)}" aria-label="Ändra tiden ${esc(when)}">Ändra</button>
+          <button class="link" type="button" data-delete="${esc(s.id)}" aria-label="Ta bort tiden ${esc(when)}">Ta bort tiden</button></span>` : ""}
       </div>
     </article>`;
   }
@@ -593,7 +612,7 @@ window.BASTU_CONFIG = {
 
     let list = state.slots;
     if (state.filter === "free") list = list.filter(s => s.bookings.reduce((n, b) => n + (b.seats || 1), 0) < s.capacity && !s.bookings.some(b => b.mine));
-    if (state.filter === "mine") list = list.filter(s => s.bookings.some(b => b.mine));
+    if (state.filter === "mine") list = list.filter(s => s.bookings.some(b => b.mine) || (s.waitlist || []).some(w => w.mine));
     const groups = new Map();
     for (const s of list) {
       const k = dayKey(s.starts_at);
@@ -632,11 +651,39 @@ window.BASTU_CONFIG = {
     catch (e) { toast(errText(e)); }
     await load();
   }
+  async function joinQueue(slotId, btn) {
+    btn.disabled = true;
+    try { await rpc("bastu_join_waitlist", withCode({ p_slot_id: slotId, p_name: myName, p_device: device })); toast("Du står i kö. Blir en plats ledig får du den direkt."); }
+    catch (e) { toast(errText(e)); }
+    await load();
+  }
+  async function leaveQueue(slotId, btn) {
+    btn.disabled = true;
+    try { await rpc("bastu_leave_waitlist", withCode({ p_slot_id: slotId, p_device: device })); toast("Du har lämnat kön."); }
+    catch (e) { toast(errText(e)); }
+    await load();
+  }
+  // Skapar en kalenderfil (.ics) som telefonen öppnar i kalenderappen.
+  function addToCalendar(slotId) {
+    const s = state.slots.find(x => x.id === slotId); if (!s) return;
+    const stamp = d => new Date(d).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const text = v => String(v).replace(/[\\;,]/g, c => "\\" + c).replace(/\n/g, "\\n");
+    const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Bastubokning//SV", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
+      `UID:${s.id}@bastubokning`, `DTSTAMP:${stamp(Date.now())}`, `DTSTART:${stamp(s.starts_at)}`, `DTEND:${stamp(s.ends_at)}`,
+      `SUMMARY:${text(`Bastu – ${state.info?.name || "Bastubokning"}`)}`,
+      ...(s.note ? [`DESCRIPTION:${text(s.note)}`] : []), `URL:${location.origin}${location.pathname}`,
+      "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "DESCRIPTION:Bastu om en timme", "END:VALARM",
+      "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `bastu-${dayKey(s.starts_at)}.ics` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
   async function removeSlot(slotId) {
     const s = state.slots.find(x => x.id === slotId);
     const n = s?.bookings.length || 0;
-    if (!(await confirmBox(`Ta bort tiden ${s ? span(s) : ""}?${n ? ` ${n} ${n === 1 ? "person har" : "personer har"} tackat ja.` : ""}`, "Ta bort"))) return;
-    try { await rpc("bastu_delete_slot", withCode({ p_slot_id: slotId, p_device: device })); toast("Tiden är borttagen."); }
+    if (!(await confirmBox(`Ta bort tiden ${s ? span(s) : ""}?${n ? ` ${n} ${n === 1 ? "person har" : "personer har"} tackat ja och får en notis om att tiden är inställd.` : ""}`, "Ta bort"))) return;
+    try { await rpc("bastu_delete_slot", withCode({ p_slot_id: slotId, p_device: device, p_name: myName })); toast("Tiden är borttagen."); }
     catch (e) { toast(errText(e)); }
     await load();
   }
@@ -710,6 +757,28 @@ window.BASTU_CONFIG = {
     return { date, start, end };
   }
 
+  // Samma ruta används för att publicera nya tider och ändra en befintlig.
+  let editing = null;
+  function openPublish(slot) {
+    editing = slot?.id || null;
+    setupTimeForm("p");
+    $("#publishErr").textContent = "";
+    $("#publishTitle").textContent = slot ? "Ändra tiden" : "Publicera tider";
+    $("#publishBtn").textContent = slot ? "Spara" : "Publicera";
+    $("#pRepeatBox").hidden = !!slot;
+    $("#pEditNote").hidden = !slot;
+    if (slot) {
+      $("#pDate").value = dayKey(slot.starts_at);
+      $("#pStart").value = timeOf(slot.starts_at);
+      $("#pEnd").value = timeOf(slot.ends_at);
+      $("#pCap").value = slot.capacity;
+      $("#pNote").value = slot.note || "";
+    } else {
+      $("#pNote").value = ""; $("#pCap").value = 4;
+    }
+    $("#publishDialog").showModal();
+    $("#pDate").focus();
+  }
   $("#pRepeat").addEventListener("change", e => { $("#pWeeksLabel").hidden = !e.target.checked; });
   $("#publishForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -717,6 +786,18 @@ window.BASTU_CONFIG = {
     const t = readTimes("p", err); if (!t) return;
     const cap = parseInt($("#pCap").value, 10);
     if (!(cap >= 1 && cap <= 20)) { $("#pCap").setAttribute("aria-invalid", "true"); err.textContent = "Antal platser ska vara mellan 1 och 20."; return; }
+    if (editing) {
+      const btn = $("#publishBtn"); btn.disabled = true;
+      try {
+        await rpc("bastu_update_slot", withCode({ p_slot_id: editing, p_starts_at: new Date(`${t.date}T${t.start}`).toISOString(),
+          p_ends_at: new Date(`${t.date}T${t.end}`).toISOString(), p_capacity: cap, p_note: $("#pNote").value.trim(), p_name: myName, p_device: device }));
+        $("#publishDialog").close();
+        toast("Tiden är ändrad.");
+        await load();
+      } catch (er) { err.textContent = errText(er); }
+      btn.disabled = false;
+      return;
+    }
     const weeks = $("#pRepeat").checked ? parseInt($("#pWeeks").value, 10) : 1;
     const slots = Array.from({ length: weeks }, (_, i) => {
       const d = new Date(`${t.date}T00:00`); d.setDate(d.getDate() + 7 * i);
@@ -810,8 +891,8 @@ window.BASTU_CONFIG = {
   }
   async function openNotify() {
     $("#notifyWho").textContent = isOwner()
-      ? "Som admin får du en notis när någon tackar ja, avbokar eller skickar en förfrågan."
-      : "Du får en notis när en admin svarar på din förfrågan och när någon annan tackar ja till en tid du ska på.";
+      ? "Som admin får du en notis när någon tackar ja, avbokar eller skickar en förfrågan, och när en annan admin publicerar nya tider. Har du själv bokat en tid får du också en påminnelse före passet."
+      : "Du får en notis när en ny tid publiceras, när en admin svarar på din förfrågan, när någon annan tackar ja till en tid du ska på, när du får en plats från kön, om din tid ändras eller ställs in, och en påminnelse ungefär två timmar före passet.";
     const body = $("#notifyBody"), msg = $("#notifyMsg");
     msg.hidden = true;
     if (isIOS && !isStandalone) {
@@ -929,6 +1010,10 @@ window.BASTU_CONFIG = {
     if (t.dataset.book) return book(t.dataset.book, t);
     if (t.dataset.cancel) return cancel(t.dataset.cancel, t);
     if (t.dataset.delete) return removeSlot(t.dataset.delete);
+    if (t.dataset.edit) return openPublish(state.slots.find(x => x.id === t.dataset.edit));
+    if (t.dataset.join) return joinQueue(t.dataset.join, t);
+    if (t.dataset.leave) return leaveQueue(t.dataset.leave, t);
+    if (t.dataset.ics) return addToCalendar(t.dataset.ics);
     if (t.dataset.withdraw) return withdraw(t.dataset.withdraw);
     if (t.dataset.answer) return openAnswer(t.dataset.answer, t.dataset.accept === "1");
     if (t.dataset.removeAdmin) return removeAdmin(t.dataset.removeAdmin, t.dataset.name);
@@ -949,7 +1034,7 @@ window.BASTU_CONFIG = {
         try { await open(c); created = null; } catch (er) { lockView("join"); $("#codeErr").textContent = errText(er); }
         return;
       }
-      case "publish": setupTimeForm("p"); $("#publishErr").textContent = ""; $("#publishDialog").showModal(); $("#pDate").focus(); return;
+      case "publish": return openPublish(null);
       case "request": setupTimeForm("r"); $("#requestErr").textContent = ""; $("#requestDialog").showModal(); $("#rDate").focus(); return;
       case "notify": return openNotify();
       case "rename": $("#renameInput").value = myName; $("#renameDialog").showModal(); return;
