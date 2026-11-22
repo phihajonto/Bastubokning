@@ -140,8 +140,8 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 .name-remove { font: inherit; font-size: .95rem; background: var(--accent-soft); color: var(--ink); border: 0; border-radius: 999px; padding: 3px 10px; min-height: 32px; cursor: pointer; }
 .names li:has(> .name-remove) { background: none; padding: 0; }
 .warm-badge { margin: 0; font-weight: 700; color: var(--accent); }
-.btn.warm { align-self: flex-start; }
-.chat-btn { font: inherit; font-size: .95rem; font-weight: 600; align-self: flex-start; min-height: 36px; padding: 4px 12px; border-radius: 999px;
+.btn.warm { align-self: flex-start; justify-self: start; }
+.chat-btn { font: inherit; font-size: .95rem; font-weight: 600; align-self: flex-start; justify-self: start; min-height: 36px; padding: 4px 12px; border-radius: 999px;
   border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
 .new-badge { background: var(--accent); color: var(--accent-ink, #fff); border-radius: 999px; padding: 1px 8px; font-size: .8rem; }
 .chat-dialog { width: min(560px, calc(100vw - 24px)); }
@@ -158,6 +158,10 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 .chat-empty { align-self: center; padding: 16px 0; margin: 0; }
 .chat-send { display: flex; gap: 8px; align-items: flex-end; }
 .chat-send textarea { flex: 1; font: inherit; resize: none; min-height: 44px; }
+.place { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.place-address { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.place-note { margin: 2px 0 0; }
+.place .btn { text-decoration: none; display: inline-flex; align-items: center; }
 </style>
 </head>
 <body>
@@ -229,6 +233,15 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
       <button class="btn" type="button" data-action="menu" aria-haspopup="dialog">Mer</button>
     </div>
   </header>
+
+  <section class="place" id="placeBox" aria-labelledby="placeTitle" hidden>
+    <div>
+      <h2 id="placeTitle" class="sr-only">Hitta hit</h2>
+      <p class="place-address" id="placeAddress"></p>
+      <p class="muted small place-note" id="placeNote"></p>
+    </div>
+    <a class="btn" id="placeLink" target="_blank" rel="noopener">Vägbeskrivning</a>
+  </section>
 
   <button class="btn primary wide" type="button" data-action="publish" id="publishOpen" hidden>+ Publicera tider</button>
   <button class="btn primary wide" type="button" data-action="request" id="requestOpen" hidden>Be om en tid</button>
@@ -394,6 +407,13 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
       <p class="code-box" id="menuOwnerCode"></p>
       <button class="btn" type="button" data-action="copy-owner">Kopiera adminkoden</button>
     </div>
+    <form class="stack tight-stack" id="addressForm" hidden novalidate>
+      <h3>Adress</h3>
+      <p class="muted small">Visas för alla med en knapp som öppnar vägbeskrivning i Google Maps.</p>
+      <label for="addrInput">Adress<input id="addrInput" maxlength="200" autocomplete="street-address" placeholder="t.ex. Storgatan 1, Umeå"></label>
+      <label for="addrNote"><span>Hitta hit <span class="muted">(valfritt)</span></span><input id="addrNote" maxlength="300" placeholder="t.ex. Bastun ligger bakom huset vid sjön"></label>
+      <button class="btn" type="submit" id="addrBtn">Spara adressen</button>
+    </form>
     <div class="stack tight-stack" id="menuAdmins" hidden>
       <h3>Admins</h3>
       <p class="muted small">Admins publicerar tider, svarar på förfrågningar och får notiser om alla bokningar.</p>
@@ -584,6 +604,7 @@ window.BASTU_CONFIG = {
     try {
       const data = await rpc("bastu_list", withCode({ p_device: device }));
       state.slots = data.slots; state.requests = data.requests;
+      state.address = data.address || ""; state.addressNote = data.address_note || "";
       state.ready = true;
       $("#offline").hidden = true;
       render();
@@ -670,8 +691,20 @@ window.BASTU_CONFIG = {
     </article>`;
   }
 
+  const mapsUrl = a => `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(a)}`;
+  function renderPlace() {
+    const a = state.address || "";
+    $("#placeBox").hidden = !a;
+    if (!a) return;
+    $("#placeAddress").textContent = a;
+    $("#placeNote").textContent = state.addressNote || "";
+    $("#placeNote").hidden = !state.addressNote;
+    $("#placeLink").href = mapsUrl(a);
+    $("#placeLink").setAttribute("aria-label", `Vägbeskrivning till ${a} i Google Maps`);
+  }
   function render() {
     $("#loading").hidden = state.ready;
+    renderPlace();
     // Förfrågningar: admins ser öppna först, gästen sina egna.
     const reqs = [...state.requests].sort((a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || a.starts_at.localeCompare(b.starts_at));
     $("#requestsBox").hidden = !reqs.length;
@@ -742,7 +775,9 @@ window.BASTU_CONFIG = {
     const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Bastubokning//SV", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
       `UID:${s.id}@bastubokning`, `DTSTAMP:${stamp(Date.now())}`, `DTSTART:${stamp(s.starts_at)}`, `DTEND:${stamp(s.ends_at)}`,
       `SUMMARY:${text(`Bastu – ${state.info?.name || "Bastubokning"}`)}`,
-      ...(s.note ? [`DESCRIPTION:${text(s.note)}`] : []), `URL:${location.origin}${location.pathname}`,
+      ...(state.address ? [`LOCATION:${text(state.address)}`] : []),
+      ...(s.note || state.addressNote ? [`DESCRIPTION:${text([s.note, state.addressNote].filter(Boolean).join("\n"))}`] : []),
+      `URL:${location.origin}${location.pathname}`,
       "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "DESCRIPTION:Bastu om en timme", "END:VALARM",
       "END:VEVENT", "END:VCALENDAR"].join("\r\n");
     const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
@@ -1109,10 +1144,25 @@ window.BASTU_CONFIG = {
     $("#menuOwner").hidden = !ownerCode;
     $("#menuOwnerCode").textContent = ownerCode;
     $("#menuAdmins").hidden = !isOwner();
+    $("#addressForm").hidden = !isOwner();
+    $("#addrInput").value = state.address || "";
+    $("#addrNote").value = state.addressNote || "";
     $("#menuClaim").hidden = isOwner() || state.info?.has_owner !== false;
     $("#menuDialog").showModal();
     if (isOwner()) loadAdmins();
   }
+
+  $("#addressForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = $("#addrBtn"); btn.disabled = true;
+    try {
+      await rpc("bastu_set_address", withCode({ p_address: $("#addrInput").value.trim(), p_note: $("#addrNote").value.trim() }));
+      state.address = $("#addrInput").value.trim(); state.addressNote = $("#addrNote").value.trim();
+      renderPlace();
+      toast(state.address ? "Adressen är sparad. Alla ser nu en knapp för vägbeskrivning." : "Adressen är borttagen.");
+    } catch (er) { toast(errText(er)); }
+    btn.disabled = false;
+  });
 
   /* ---------- admins ---------- */
   async function loadAdmins() {
