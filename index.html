@@ -63,7 +63,7 @@ p { margin: 0; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 label { display: grid; gap: 4px; font-weight: 600; font-size: .95rem; }
-input, select { font: inherit; font-weight: 400; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px; width: 100%; }
+input, select, textarea { font: inherit; font-weight: 400; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px; width: 100%; }
 input[aria-invalid="true"] { border-color: var(--full); }
 .code-input { text-align: center; letter-spacing: .12em; font-size: 1.2rem; text-transform: uppercase; }
 .check { display: flex; align-items: center; gap: 10px; font-weight: 500; }
@@ -141,6 +141,23 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 .names li:has(> .name-remove) { background: none; padding: 0; }
 .warm-badge { margin: 0; font-weight: 700; color: var(--accent); }
 .btn.warm { align-self: flex-start; }
+.chat-btn { font: inherit; font-size: .95rem; font-weight: 600; align-self: flex-start; min-height: 36px; padding: 4px 12px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.new-badge { background: var(--accent); color: var(--accent-ink, #fff); border-radius: 999px; padding: 1px 8px; font-size: .8rem; }
+.chat-dialog { width: min(560px, calc(100vw - 24px)); }
+.chat-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.chat-top h2 { margin: 0; }
+.chat-list { margin: 0; padding: 4px 0; display: flex; flex-direction: column; gap: 8px; max-height: min(55vh, 460px); min-height: 120px; overflow-y: auto; overscroll-behavior: contain; }
+.msg { align-self: flex-start; max-width: 85%; background: var(--accent-soft); border-radius: 14px 14px 14px 4px; padding: 6px 12px; }
+.msg.mine { align-self: flex-end; border-radius: 14px 14px 4px 14px; background: var(--surface); border: 1.5px solid var(--line); }
+.msg-head { font-size: .85rem; display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.msg-head time { color: var(--muted); }
+.msg-admin { font-size: .75rem; font-weight: 700; color: var(--accent); }
+.msg-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg .link.small { font-size: .8rem; }
+.chat-empty { align-self: center; padding: 16px 0; margin: 0; }
+.chat-send { display: flex; gap: 8px; align-items: flex-end; }
+.chat-send textarea { flex: 1; font: inherit; resize: none; min-height: 44px; }
 </style>
 </head>
 <body>
@@ -335,6 +352,23 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
   </form>
 </dialog>
 
+<!-- Chatt för ett pass -->
+<dialog id="chatDialog" class="chat-dialog" aria-labelledby="chatTitle">
+  <form id="chatForm" class="stack" method="dialog" novalidate>
+    <div class="chat-top">
+      <div><h2 id="chatTitle">Chatt</h2><p class="muted small" id="chatWhat"></p></div>
+      <button class="btn" type="button" data-action="close-dialog">Stäng</button>
+    </div>
+    <div class="chat-list" id="chatList" role="log" aria-live="polite" aria-label="Meddelanden"></div>
+    <label for="chatInput" class="sr-only">Meddelande</label>
+    <div class="chat-send">
+      <textarea id="chatInput" maxlength="500" rows="2" placeholder="Skriv ett meddelande…" autocomplete="off"></textarea>
+      <button class="btn primary" type="submit" id="chatBtn">Skicka</button>
+    </div>
+    <p class="err" id="chatErr" role="alert"></p>
+  </form>
+</dialog>
+
 <!-- Byt namn -->
 <dialog id="renameDialog" aria-labelledby="renameTitle">
   <form id="renameForm" class="stack" method="dialog">
@@ -438,7 +472,7 @@ window.BASTU_CONFIG = {
     if (!res.ok) {
       const msg = body?.message || "";
       const known = ["wrong_code", "admin_only", "last_admin", "too_many_admins", "full", "already_booked", "already_answered", "in_the_past", "not_found",
-        "end_before_start", "name_required", "too_many_requests", "has_owner", "not_full", "waitlist_full", "below_booked", "bad_capacity", "too_early", "already_warm"];
+        "end_before_start", "name_required", "too_many_requests", "has_owner", "not_full", "waitlist_full", "below_booked", "bad_capacity", "too_early", "already_warm", "empty_message", "too_fast"];
       throw new ApiError(known.find(k => msg.includes(k)) || (body?.code === "PGRST202" ? "not_installed" : "server"), msg);
     }
     return body;
@@ -467,6 +501,8 @@ window.BASTU_CONFIG = {
       bad_capacity: "Antal platser ska vara mellan 1 och 20.",
       too_early: "Det går tidigast tre timmar före passet.",
       already_warm: "Alla har redan fått veta att bastun är varm.",
+      empty_message: "Skriv något först.",
+      too_fast: "Du skickar väldigt många meddelanden. Vänta en stund.",
     }[e?.code] || "Något gick fel. Försök igen.";
   }
 
@@ -580,6 +616,10 @@ window.BASTU_CONFIG = {
     const startsSoon = new Date(s.starts_at) - Date.now() <= 3 * 3600e3;
     const warm = s.warm_at ? `<p class="warm-badge">Bastun är varm</p>`
       : isOwner() && startsSoon && taken ? `<button class="btn warm" type="button" data-warm="${esc(s.id)}">Bastun är varm</button>` : "";
+    const seen = store.get(`bastu.chatSeen.${s.id}`) || "";
+    const unread = s.last_msg_at && !s.last_msg_mine && s.last_msg_at > seen;
+    const chat = `<button class="chat-btn" type="button" data-chat="${esc(s.id)}" aria-label="Chatt för passet ${esc(when)}${s.msg_count ? `, ${s.msg_count} meddelanden` : ""}${unread ? ", nya meddelanden" : ""}">
+      Chatt${s.msg_count ? ` (${s.msg_count})` : ""}${unread ? ` <span class="new-badge">Nytt</span>` : ""}</button>`;
     const queue = s.waitlist || [];
     const myPlace = queue.findIndex(w => w.mine) + 1;
     const queueInfo = queue.length
@@ -600,6 +640,7 @@ window.BASTU_CONFIG = {
       ${names}
       ${queueInfo}
       ${warm}
+      ${chat}
       <div class="slot-actions">
         <span class="slot-main">${action}</span>
         ${isOwner() ? `<span class="admin-links">${full ? "" : `<button class="link" type="button" data-bookfor="${esc(s.id)}" aria-label="Boka åt någon ${esc(when)}">Boka åt någon</button>`}
@@ -753,6 +794,61 @@ window.BASTU_CONFIG = {
       toast("Ny gästkod. Dela den nya länken med dem som ska boka.");
     } catch (e) { toast(errText(e)); }
   }
+  /* ---------- chatt ---------- */
+  let chatSlot = null, chatTimer = null, chatLast = "";
+  const msgTime = d => dayKey(d) === dayKey(new Date()) ? timeOf(d) : `${new Date(d).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })} ${timeOf(d)}`;
+  async function loadChat(scroll) {
+    if (!chatSlot) return;
+    const list = $("#chatList");
+    try {
+      const msgs = await rpc("bastu_messages_for", withCode({ p_slot_id: chatSlot, p_device: device }));
+      const sig = msgs.map(m => m.id).join();
+      if (sig === chatLast && !scroll) return;
+      chatLast = sig;
+      const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
+      list.innerHTML = msgs.length ? msgs.map(m => `<div class="msg ${m.mine ? "mine" : ""}">
+          <div class="msg-head"><b>${esc(m.mine ? "Du" : m.name)}</b>${m.admin ? ` <span class="msg-admin">Admin</span>` : ""} <time datetime="${esc(m.at)}">${esc(msgTime(m.at))}</time></div>
+          <div class="msg-body">${esc(m.body)}</div>
+          ${m.mine || isOwner() ? `<button class="link small" type="button" data-delmsg="${esc(m.id)}" aria-label="Ta bort meddelandet">Ta bort</button>` : ""}
+        </div>`).join("") : `<p class="muted small chat-empty">Inga meddelanden än. Skriv det första!</p>`;
+      if (scroll || atBottom) list.scrollTop = list.scrollHeight;
+      if (msgs.length) store.set(`bastu.chatSeen.${chatSlot}`, msgs[msgs.length - 1].at);
+    } catch (e) { if (scroll) list.innerHTML = `<p class="muted small">${esc(errText(e))}</p>`; }
+  }
+  function openChat(slotId) {
+    const s = state.slots.find(x => x.id === slotId); if (!s) return;
+    chatSlot = slotId; chatLast = "";
+    $("#chatWhat").textContent = span(s);
+    $("#chatList").innerHTML = `<p class="muted small chat-empty">Hämtar…</p>`;
+    $("#chatErr").textContent = "";
+    $("#chatDialog").showModal();
+    $("#chatInput").focus();
+    loadChat(true);
+    clearInterval(chatTimer); chatTimer = setInterval(() => loadChat(false), 5000);
+  }
+  $("#chatDialog").addEventListener("close", () => { clearInterval(chatTimer); chatSlot = null; load(); });
+  $("#chatForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const input = $("#chatInput"), text = input.value.trim();
+    if (!text) return;
+    const btn = $("#chatBtn"); btn.disabled = true; $("#chatErr").textContent = "";
+    try {
+      await rpc("bastu_send_message", withCode({ p_slot_id: chatSlot, p_body: text, p_name: myName, p_device: device }));
+      input.value = "";
+      await loadChat(true);
+    } catch (er) { $("#chatErr").textContent = errText(er); }
+    btn.disabled = false; input.focus();
+  });
+  // Enter skickar, Skift+Enter ger ny rad.
+  $("#chatInput").addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("#chatForm").requestSubmit(); }
+  });
+  async function deleteMessage(id) {
+    if (!(await confirmBox("Ta bort meddelandet?", "Ta bort"))) return;
+    try { await rpc("bastu_delete_message", withCode({ p_message_id: id, p_device: device })); await loadChat(false); }
+    catch (e) { toast(errText(e)); }
+  }
+
   async function removeSlot(slotId) {
     const s = state.slots.find(x => x.id === slotId);
     const n = s?.bookings.length || 0;
@@ -965,8 +1061,8 @@ window.BASTU_CONFIG = {
   }
   async function openNotify() {
     $("#notifyWho").textContent = isOwner()
-      ? "Som admin får du en notis när någon tackar ja, avbokar eller skickar en förfrågan, och när en annan admin publicerar nya tider. Har du själv bokat en tid får du också en påminnelse före passet."
-      : "Du får en notis när en ny tid publiceras, när en admin svarar på din förfrågan, när någon annan tackar ja till en tid du ska på, när du får en plats från kön, om din tid ändras eller ställs in, och en påminnelse ungefär två timmar före passet.";
+      ? "Som admin får du en notis när någon tackar ja, avbokar eller skickar en förfrågan, och när en annan admin publicerar nya tider. Du får också notiser från passens chattar och, om du själv har bokat en tid, en påminnelse före passet."
+      : "Du får en notis när en ny tid publiceras, när en admin svarar på din förfrågan, när någon annan tackar ja till en tid du ska på, när du får en plats från kön, om din tid ändras eller ställs in, en påminnelse ungefär två timmar före passet, och när någon skriver i chatten för ett pass du har bokat eller skrivit i.";
     const body = $("#notifyBody"), msg = $("#notifyMsg");
     msg.hidden = true;
     if (isIOS && !isStandalone) {
@@ -1087,6 +1183,8 @@ window.BASTU_CONFIG = {
     if (t.dataset.delete) return removeSlot(t.dataset.delete);
     if (t.dataset.edit) return openPublish(state.slots.find(x => x.id === t.dataset.edit));
     if (t.dataset.unbook) return unbook(t.dataset.unbook, t.dataset.name);
+    if (t.dataset.chat) return openChat(t.dataset.chat);
+    if (t.dataset.delmsg) return deleteMessage(t.dataset.delmsg);
     if (t.dataset.warm) return announceWarm(t.dataset.warm, t);
     if (t.dataset.bookfor) return openBookFor(t.dataset.bookfor);
     if (t.dataset.join) return joinQueue(t.dataset.join, t);
