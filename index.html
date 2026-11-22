@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bastubokning</title>
+<meta name="description" content="Se lediga bastutider och boka en plats.">
+<meta name="theme-color" content="#7a3b1d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%3E%0A%20%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22104%22%20fill%3D%22%237a3b1d%22/%3E%0A%20%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%23f7d9c2%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M176%20120c-30%2030%2030%2050%200%2084M256%20104c-30%2034%2030%2056%200%2096M336%20120c-30%2030%2030%2050%200%2084%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Crect%20x%3D%22104%22%20y%3D%22268%22%20width%3D%22304%22%20height%3D%2240%22%20rx%3D%2214%22%20fill%3D%22%23e9a46f%22/%3E%0A%20%20%3Crect%20x%3D%22136%22%20y%3D%22332%22%20width%3D%22240%22%20height%3D%2240%22%20rx%3D%2214%22%20fill%3D%22%23e9a46f%22/%3E%0A%20%20%3Cpath%20d%3D%22M150%20308v92M362%20308v92%22%20stroke%3D%22%23e9a46f%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E" type="image/svg+xml">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bastu">
+<style>
+:root {
+  --bg: #f7f2ec;
+  --surface: #ffffff;
+  --ink: #2a1d16;
+  --muted: #6b5a4f;
+  --line: #d9cbbf;
+  --accent: #7a3b1d;
+  --accent-ink: #ffffff;
+  --accent-soft: #f3e3d6;
+  --free: #2f6b3a;
+  --free-soft: #e2efe3;
+  --full: #8a2b1c;
+  --focus: #1a5fd0;
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b1410; --surface: #261c16; --ink: #f4ebe4; --muted: #c4b2a5; --line: #4a3a30;
+    --accent: #f0a274; --accent-ink: #2a1408; --accent-soft: #3a2619;
+    --free: #8fd19a; --free-soft: #1f3324; --full: #ff9a8a; --focus: #8ab4ff;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 17px; line-height: 1.45; background: var(--bg); color: var(--ink); }
+h1, h2, h3 { margin: 0; line-height: 1.2; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.25rem; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -100px; background: var(--surface); color: var(--ink); padding: 10px 14px; border-radius: 10px; z-index: 10; }
+.skip:focus { top: 12px; }
+.muted { color: var(--muted); }
+.small { font-size: .9rem; }
+[hidden] { display: none !important; }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 80px; display: grid; gap: 16px; }
+.center { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+.narrow { width: 100%; max-width: 380px; display: grid; gap: 16px; }
+.stack { display: grid; gap: 12px; }
+.divider { border-top: 1px solid var(--line); padding-top: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; }
+.row.tight { justify-content: flex-end; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+label { display: grid; gap: 4px; font-weight: 600; font-size: .95rem; }
+input, select { font: inherit; font-weight: 400; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px; width: 100%; }
+input[aria-invalid="true"] { border-color: var(--full); }
+.code-input { text-align: center; letter-spacing: .12em; font-size: 1.2rem; text-transform: uppercase; }
+.check { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.check input { width: 22px; height: 22px; min-height: 0; }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
+.err { color: var(--full); font-weight: 600; font-size: .95rem; min-height: 1.2em; }
+.err:empty { min-height: 0; }
+
+.btn { font: inherit; font-weight: 600; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { color: var(--full); }
+.btn.wide { width: 100%; }
+.btn:disabled { opacity: .55; cursor: default; }
+.link { font: inherit; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; min-height: 0; }
+
+.top { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: flex-start; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font: inherit; font-size: .95rem; min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+.day { display: grid; gap: 10px; margin-bottom: 20px; }
+.day h2 { font-size: 1.05rem; color: var(--muted); }
+.slot { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--free); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; }
+.slot.is-full { border-left-color: var(--full); }
+.slot.is-mine { border-left-color: var(--accent); }
+.slot-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.slot-time { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.slot-note { color: var(--muted); font-size: .95rem; }
+.status { font-weight: 600; font-size: .95rem; }
+.status.free { color: var(--free); }
+.status.full { color: var(--full); }
+.seats { display: flex; gap: 6px; }
+.seat { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--free); }
+.seat.taken { background: var(--muted); border-color: var(--muted); }
+.seat.me { background: var(--accent); border-color: var(--accent); }
+.names { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.names li { background: var(--accent-soft); border-radius: 999px; padding: 3px 10px; font-size: .95rem; }
+.names li.me { font-weight: 700; }
+.slot-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.slot-meta { font-size: .85rem; color: var(--muted); }
+
+.empty { text-align: center; border: 2px dashed var(--line); border-radius: var(--radius); padding: 28px 16px; display: grid; gap: 8px; }
+.notice { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: .95rem; }
+.code-box { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.3rem; letter-spacing: .08em; text-align: center; padding: 12px; border: 1.5px dashed var(--line); border-radius: 10px; background: var(--bg); user-select: all; overflow-wrap: anywhere; }
+
+dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); padding: 20px; width: min(440px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgb(0 0 0 / .45); }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 12px; max-width: calc(100vw - 32px); box-shadow: 0 6px 24px rgb(0 0 0 / .25); z-index: 20; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+.tight-stack { gap: 8px; }
+.role { display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.requests { display: grid; gap: 10px; }
+.request { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 8px; }
+.request.pending { border-left-color: var(--accent); }
+.request.accepted { border-left-color: var(--free); }
+.request.declined { border-left-color: var(--full); }
+.request-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.req-status { font-size: .85rem; font-weight: 700; }
+.req-status.pending { color: var(--accent); }
+.req-status.accepted { color: var(--free); }
+.req-status.declined { color: var(--full); }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+dialog h3 { font-size: 1.05rem; margin: 0; }
+.admin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.admin-list li { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Hoppa till tiderna</a>
+
+<!-- Startsida: skriv in kod eller skapa en kalender -->
+<div class="center" id="lock" hidden>
+  <div class="card narrow">
+    <h1><span aria-hidden="true">🧖</span> Bastubokning</h1>
+
+    <form id="codeForm" class="stack">
+      <p class="muted">Skriv in koden till er bastukalender: gästkoden, eller din adminkod om du är admin.</p>
+      <label for="codeInput" class="sr-only">Kod</label>
+      <input id="codeInput" class="code-input" autocapitalize="characters" autocomplete="off" spellcheck="false" required placeholder="ABCD-EFGH-JKLM" aria-describedby="codeErr">
+      <button class="btn primary" type="submit">Öppna</button>
+      <p class="err" id="codeErr" role="alert"></p>
+    </form>
+
+    <div class="stack divider" id="createToggle">
+      <p class="muted">Har ni ingen kalender än?</p>
+      <button class="btn" type="button" data-action="show-create">Skapa en bastukalender</button>
+    </div>
+
+    <form id="createForm" class="stack" hidden>
+      <h2>Ny bastukalender</h2>
+      <label for="calName">Vad heter bastun?</label>
+      <input id="calName" maxlength="60" required autocomplete="off" placeholder="t.ex. Bastun på gården" aria-describedby="createErr">
+      <div class="row"><button class="btn" type="button" data-action="hide-create">Avbryt</button><button class="btn primary" type="submit">Skapa</button></div>
+      <p class="err" id="createErr" role="alert"></p>
+    </form>
+
+    <div class="stack" id="createdPanel" hidden>
+      <h2 id="createdTitle" tabindex="-1">Kalendern är skapad</h2>
+      <div class="stack tight-stack">
+        <p><b>Din adminkod</b> – behåll den själv. Med den kan du publicera tider från alla dina enheter. Fler admins lägger du till under <b>Mer</b>.</p>
+        <p class="code-box" id="createdOwnerCode"></p>
+        <button class="btn" type="button" data-action="copy-owner">Kopiera adminkoden</button>
+      </div>
+      <div class="stack tight-stack">
+        <p><b>Gästlänk</b> – skicka till dem som ska kunna boka och skicka förfrågningar.</p>
+        <p class="code-box" id="createdCode"></p>
+        <button class="btn" type="button" data-action="share">Dela gästlänk</button>
+      </div>
+      <button class="btn primary" type="button" data-action="enter-created">Fortsätt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Namn första gången -->
+<div class="center" id="nameScreen" hidden>
+  <form class="card narrow stack" id="nameForm">
+    <h1 id="nameTitle" tabindex="-1">Vad heter du?</h1>
+    <p class="muted">Namnet syns för de andra när du bokar en tid.</p>
+    <label for="nameInput" class="sr-only">Ditt namn</label>
+    <input id="nameInput" maxlength="40" required autocomplete="given-name" placeholder="Ditt namn">
+    <button class="btn primary" type="submit">Fortsätt</button>
+  </form>
+</div>
+
+<!-- Tiderna -->
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div>
+      <h1 id="calTitle">Bastu</h1>
+      <p class="muted small"><span class="role" id="roleBadge"></span> <b id="meName"></b> · <button class="link" type="button" data-action="rename">Ändra namn</button></p>
+    </div>
+    <div class="row tight">
+      <button class="btn" type="button" data-action="notify" id="notifyBtn">Notiser</button>
+      <button class="btn" type="button" data-action="menu" aria-haspopup="dialog">Mer</button>
+    </div>
+  </header>
+
+  <button class="btn primary wide" type="button" data-action="publish" id="publishOpen" hidden>+ Publicera tider</button>
+  <button class="btn primary wide" type="button" data-action="request" id="requestOpen" hidden>Be om en tid</button>
+
+  <section class="requests" id="requestsBox" aria-labelledby="requestsTitle" hidden>
+    <h2 id="requestsTitle">Förfrågningar</h2>
+    <div id="requestList" class="stack"></div>
+  </section>
+
+  <div class="filters" role="group" aria-label="Visa">
+    <button class="chip" type="button" data-filter="all" aria-pressed="true">Alla tider</button>
+    <button class="chip" type="button" data-filter="free" aria-pressed="false">Lediga</button>
+    <button class="chip" type="button" data-filter="mine" aria-pressed="false">Mina bokningar</button>
+  </div>
+
+  <p class="notice" id="offline" role="status" hidden>Ingen anslutning. Listan kan vara inaktuell.</p>
+
+  <main id="main" tabindex="-1">
+    <p class="muted" id="loading">Hämtar tider …</p>
+    <div id="days"></div>
+    <div class="empty" id="empty" hidden>
+      <h2>Inga tider här än</h2>
+      <p class="muted" id="emptyText">Publicera en tid så kan andra boka in sig.</p>
+    </div>
+  </main>
+</div>
+
+<!-- Publicera tider -->
+<dialog id="publishDialog" aria-labelledby="publishTitle">
+  <form id="publishForm" class="stack" method="dialog" novalidate>
+    <h2 id="publishTitle">Publicera tider</h2>
+    <label for="pDate">Datum<input id="pDate" type="date" required></label>
+    <div class="two">
+      <label for="pStart">Från<input id="pStart" type="time" required value="18:00" step="900"></label>
+      <label for="pEnd">Till<input id="pEnd" type="time" required value="19:00" step="900"></label>
+    </div>
+    <label for="pCap">Antal platser<input id="pCap" type="number" min="1" max="20" required value="4" inputmode="numeric"></label>
+    <label for="pNote"><span>Anteckning <span class="muted">(valfritt)</span></span><input id="pNote" maxlength="120" placeholder="t.ex. Damtid eller Familjebastu"></label>
+    <fieldset class="repeat">
+      <legend class="sr-only">Upprepning</legend>
+      <label class="check"><input type="checkbox" id="pRepeat"> Upprepa varje vecka</label>
+      <label for="pWeeks" id="pWeeksLabel" hidden>Antal veckor
+        <select id="pWeeks">
+          <option value="2">2 veckor</option><option value="4" selected>4 veckor</option>
+          <option value="8">8 veckor</option><option value="12">12 veckor</option>
+        </select>
+      </label>
+    </fieldset>
+    <p class="err" id="publishErr" role="alert"></p>
+    <div class="row"><button class="btn" type="button" data-action="close-dialog">Avbryt</button><button class="btn primary" type="submit" id="publishBtn">Publicera</button></div>
+  </form>
+</dialog>
+
+<!-- Be om en tid (gäst) -->
+<dialog id="requestDialog" aria-labelledby="requestTitle">
+  <form id="requestForm" class="stack" method="dialog" novalidate>
+    <h2 id="requestTitle">Be om en tid</h2>
+    <p class="muted small">Admin får en notis och svarar. Godkänns förfrågan blir tiden bokad åt dig.</p>
+    <label for="rDate">Datum<input id="rDate" type="date" required></label>
+    <div class="two">
+      <label for="rStart">Från<input id="rStart" type="time" required value="18:00" step="900"></label>
+      <label for="rEnd">Till<input id="rEnd" type="time" required value="19:00" step="900"></label>
+    </div>
+    <label for="rPeople">Hur många är ni?<input id="rPeople" type="number" min="1" max="20" required value="1" inputmode="numeric"></label>
+    <label for="rMsg"><span>Meddelande <span class="muted">(valfritt)</span></span><input id="rMsg" maxlength="200" placeholder="t.ex. Vi tar med egen ved"></label>
+    <p class="err" id="requestErr" role="alert"></p>
+    <div class="row"><button class="btn" type="button" data-action="close-dialog">Avbryt</button><button class="btn primary" type="submit" id="requestBtn">Skicka förfrågan</button></div>
+  </form>
+</dialog>
+
+<!-- Svara på förfrågan (admin) -->
+<dialog id="answerDialog" aria-labelledby="answerTitle">
+  <form id="answerForm" class="stack" method="dialog">
+    <h2 id="answerTitle">Svara</h2>
+    <p id="answerWhat"></p>
+    <label for="aCap" id="aCapLabel">Antal platser på tiden<input id="aCap" type="number" min="1" max="20" value="4" inputmode="numeric"></label>
+    <label for="aMsg"><span>Meddelande <span class="muted">(valfritt)</span></span><input id="aMsg" maxlength="200"></label>
+    <div class="row"><button class="btn" type="button" data-action="close-dialog">Avbryt</button><button class="btn primary" type="submit" id="answerBtn">Godkänn</button></div>
+  </form>
+</dialog>
+
+<!-- Notiser -->
+<dialog id="notifyDialog" aria-labelledby="notifyTitle">
+  <div class="stack">
+    <h2 id="notifyTitle">Notiser</h2>
+    <p class="muted" id="notifyWho"></p>
+    <div id="notifyBody" class="stack"></div>
+    <p class="notice" id="notifyMsg" role="status" hidden></p>
+    <button class="btn" type="button" data-action="close-dialog">Stäng</button>
+  </div>
+</dialog>
+
+<!-- Lägg till admin -->
+<dialog id="adminDialog" aria-labelledby="adminTitle">
+  <form id="adminForm" class="stack" method="dialog">
+    <h2 id="adminTitle">Lägg till admin</h2>
+    <div class="stack" id="adminAsk">
+      <label for="adminName">Vem ska bli admin?<input id="adminName" maxlength="40" required autocomplete="off" placeholder="t.ex. Kalle"></label>
+      <p class="muted small">Personen får en egen adminkod. Du kan ta bort den senare utan att din egen kod påverkas.</p>
+      <div class="row"><button class="btn" type="button" data-action="close-dialog">Avbryt</button><button class="btn primary" type="submit" id="adminBtn">Skapa adminkod</button></div>
+    </div>
+    <div class="stack" id="adminDone" hidden>
+      <p id="adminDoneText"></p>
+      <p class="code-box" id="adminCode"></p>
+      <div class="row"><button class="btn" type="button" data-action="share-admin">Skicka länken</button><button class="btn primary" type="button" data-action="close-dialog">Klar</button></div>
+    </div>
+  </form>
+</dialog>
+
+<!-- Byt namn -->
+<dialog id="renameDialog" aria-labelledby="renameTitle">
+  <form id="renameForm" class="stack" method="dialog">
+    <h2 id="renameTitle">Ändra namn</h2>
+    <label for="renameInput">Ditt namn<input id="renameInput" maxlength="40" required autocomplete="given-name"></label>
+    <p class="muted small">Namnet ändras även på tider du redan har bokat.</p>
+    <div class="row"><button class="btn" type="button" data-action="close-dialog">Avbryt</button><button class="btn primary" type="submit">Spara</button></div>
+  </form>
+</dialog>
+
+<!-- Mer -->
+<dialog id="menuDialog" aria-labelledby="menuTitle">
+  <div class="stack">
+    <h2 id="menuTitle">Kalendern</h2>
+    <div class="stack tight-stack" id="menuGuest">
+      <p class="muted small">Gästkod – dela med dem som ska boka</p>
+      <p class="code-box" id="menuCode"></p>
+      <button class="btn" type="button" data-action="share">Dela gästlänk</button>
+    </div>
+    <div class="stack tight-stack" id="menuOwner" hidden>
+      <p class="muted small">Din adminkod – behåll den själv</p>
+      <p class="code-box" id="menuOwnerCode"></p>
+      <button class="btn" type="button" data-action="copy-owner">Kopiera adminkoden</button>
+    </div>
+    <div class="stack tight-stack" id="menuAdmins" hidden>
+      <h3>Admins</h3>
+      <p class="muted small">Admins publicerar tider, svarar på förfrågningar och får notiser om alla bokningar.</p>
+      <ul class="admin-list" id="adminList"></ul>
+      <button class="btn" type="button" data-action="add-admin">+ Lägg till admin</button>
+    </div>
+    <div class="stack tight-stack" id="menuClaim" hidden>
+      <p class="muted small">Kalendern har ingen admin än. Den som sköter bastun kan bli admin och få en adminkod.</p>
+      <button class="btn" type="button" data-action="claim">Gör mig till admin</button>
+    </div>
+    <button class="btn danger" type="button" data-action="leave">Byt kalender</button>
+    <button class="btn" type="button" data-action="close-dialog">Stäng</button>
+  </div>
+</dialog>
+
+<!-- Bekräfta -->
+<dialog id="confirmDialog" aria-labelledby="confirmText">
+  <form class="stack" method="dialog">
+    <p id="confirmText"></p>
+    <div class="row"><button class="btn" value="cancel">Avbryt</button><button class="btn danger" value="ok" id="confirmOk">Ja</button></div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+// Bastubokning: adress och publik nyckel till Supabase. Båda är publika och får synas i webbläsaren.
+window.BASTU_CONFIG = {
+  supabaseUrl: "https://bpgmsbxhevlqdunoxhye.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwZ21zYnhoZXZscWR1bm94aHllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwMTA3MDcsImV4cCI6MjEwNjU4NjcwN30.GsdjLh5wzfPFjqGhVisXXjhobDRlhuZDVVFvZk-M1m8",
+  // Publik nyckel för notiser (samma som i supabase/functions/bastu-notify).
+  vapidPublicKey: "BFWdLi4fy-0HqTSXT5vKSAxVy3vPm4gk_ODE4kraAWI6Hf2rRBQstp5Pl2wOXe32Fkh57FjMm5cu8ri-ZUC9PYY",
+};
+</script>
+<script>
+(() => {
+  const CFG = window.BASTU_CONFIG || {};
+  const DAY = 86400000;
+  const KEY = { code: "bastu.code", owner: "bastu.ownerCode", name: "bastu.name", device: "bastu.device" };
+  const state = { slots: [], requests: [], filter: "all", info: null, ready: false };
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+
+  // Each phone or browser gets a random id, so only you can cancel your own bookings and requests.
+  let device = store.get(KEY.device);
+  if (!device) {
+    device = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+    store.set(KEY.device, device);
+  }
+  let code = store.get(KEY.code) || "";
+  let myName = store.get(KEY.name) || "";
+  const isOwner = () => state.info?.role === "admin";
+
+  /* ---------- Supabase ---------- */
+  class ApiError extends Error { constructor(c, m) { super(m); this.code = c; } }
+  async function rpc(fn, args) {
+    let res;
+    try {
+      res = await fetch(`${CFG.supabaseUrl}/rest/v1/rpc/${fn}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", apikey: CFG.supabaseAnonKey,
+          ...(CFG.supabaseAnonKey.startsWith("sb_") ? {} : { Authorization: `Bearer ${CFG.supabaseAnonKey}` }),
+        },
+        body: JSON.stringify(args),
+      });
+    } catch { throw new ApiError("offline", "Ingen anslutning"); }
+    const text = await res.text();
+    const body = text ? JSON.parse(text) : null;
+    if (!res.ok) {
+      const msg = body?.message || "";
+      const known = ["wrong_code", "admin_only", "last_admin", "too_many_admins", "full", "already_booked", "already_answered", "in_the_past", "not_found",
+        "end_before_start", "name_required", "too_many_requests", "has_owner"];
+      throw new ApiError(known.find(k => msg.includes(k)) || (body?.code === "PGRST202" ? "not_installed" : "server"), msg);
+    }
+    return body;
+  }
+  const withCode = args => ({ p_code: code, ...args });
+
+  function errText(e) {
+    return {
+      wrong_code: "Koden fungerar inte längre.",
+      admin_only: "Det kan bara en admin göra.",
+      last_admin: "Den sista adminen kan inte tas bort.",
+      too_many_admins: "Kalendern har redan max antal admins.",
+      full: "Tiden hann bli fullbokad.",
+      already_booked: "Du har redan tackat ja till den här tiden.",
+      already_answered: "Förfrågan är redan besvarad.",
+      in_the_past: "Tiden har redan varit.",
+      not_found: "Det finns inte längre.",
+      end_before_start: "Sluttiden måste vara efter starttiden.",
+      too_many_requests: "Du har redan många obesvarade förfrågningar. Vänta på svar först.",
+      has_owner: "Kalendern har redan en admin.",
+      offline: "Ingen anslutning. Försök igen när du är online.",
+      not_installed: "Bokningen är inte färdiginstallerad i databasen än.",
+    }[e?.code] || "Något gick fel. Försök igen.";
+  }
+
+  /* ---------- dates ---------- */
+  const dayKey = d => new Date(d).toLocaleDateString("sv-SE");
+  const timeOf = d => new Date(d).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  function dayLabel(d) {
+    const k = dayKey(d), today = dayKey(new Date()), tomorrow = dayKey(Date.now() + DAY);
+    const long = new Date(d).toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" });
+    return k === today ? `Idag, ${long}` : k === tomorrow ? `Imorgon, ${long}` : long.charAt(0).toUpperCase() + long.slice(1);
+  }
+  const span = x => `${dayLabel(x.starts_at)} ${timeOf(x.starts_at)}–${timeOf(x.ends_at)}`;
+
+  /* ---------- feedback ---------- */
+  let toastTimer;
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 3500);
+  }
+  function confirmBox(text, okLabel) {
+    const dlg = $("#confirmDialog");
+    $("#confirmText").textContent = text;
+    $("#confirmOk").textContent = okLabel;
+    const opener = document.activeElement;
+    return new Promise(resolve => {
+      dlg.addEventListener("close", () => { resolve(dlg.returnValue === "ok"); opener?.isConnected && opener.focus(); }, { once: true });
+      dlg.returnValue = ""; dlg.showModal();
+    });
+  }
+  async function copy(text, done) {
+    try { await navigator.clipboard.writeText(text); toast(done); } catch { toast(text); }
+  }
+
+  /* ---------- screens ---------- */
+  function show(screen) {
+    $("#lock").hidden = screen !== "lock";
+    $("#nameScreen").hidden = screen !== "name";
+    $("#app").hidden = screen !== "app";
+    if (screen === "name") { $("#nameInput").value = myName; $("#nameInput").focus(); }
+  }
+  function lockView(view) {
+    $("#codeForm").hidden = view !== "join";
+    $("#createToggle").hidden = view !== "join";
+    $("#createForm").hidden = view !== "create";
+    $("#createdPanel").hidden = view !== "created";
+    if (view === "create") setTimeout(() => $("#calName").focus(), 30);
+    if (view === "created") setTimeout(() => $("#createdTitle").focus(), 30);
+  }
+  function lock(message) {
+    code = ""; store.del(KEY.code); state.slots = []; state.requests = []; state.ready = false; state.info = null;
+    show("lock"); lockView("join");
+    $("#codeErr").textContent = message || "";
+  }
+
+  async function open(c) {
+    code = c;
+    state.info = await rpc("bastu_info", withCode({}));
+    store.set(KEY.code, c);
+    if (state.info.role === "admin") store.set(KEY.owner, c);
+    $("#calTitle").textContent = state.info.name;
+    document.title = `${state.info.name} – Bastubokning`;
+    if (!myName) { show("name"); return; }
+    enterApp();
+  }
+  function enterApp() {
+    $("#meName").textContent = myName;
+    $("#roleBadge").textContent = isOwner() ? "Admin" : "Gäst";
+    $("#publishOpen").hidden = !isOwner();
+    $("#requestOpen").hidden = isOwner();
+    show("app");
+    load();
+    rebindPush();
+  }
+
+  /* ---------- list ---------- */
+  async function load() {
+    if (!code) return;
+    try {
+      const data = await rpc("bastu_list", withCode({ p_device: device }));
+      state.slots = data.slots; state.requests = data.requests;
+      state.ready = true;
+      $("#offline").hidden = true;
+      render();
+    } catch (e) {
+      if (e.code === "wrong_code") return lock("Koden fungerar inte längre. Fråga efter den nya.");
+      if (e.code === "offline") $("#offline").hidden = false;
+      else toast(errText(e));
+    }
+  }
+
+  function slotHTML(s) {
+    const taken = s.bookings.reduce((n, b) => n + (b.seats || 1), 0), left = Math.max(0, s.capacity - taken);
+    const mineBooking = s.bookings.find(b => b.mine);
+    const full = left === 0;
+    const when = `${dayLabel(s.starts_at)} ${timeOf(s.starts_at)}`;
+    // One circle per seat; a booking for several people fills several.
+    const seatOwners = s.bookings.flatMap(b => Array(b.seats || 1).fill(b.mine));
+    const seats = Array.from({ length: s.capacity }, (_, i) =>
+      `<span class="seat ${i < seatOwners.length ? (seatOwners[i] ? "me" : "taken") : ""}"></span>`).join("");
+    const status = full ? `<span class="status full">Fullbokad</span>`
+      : `<span class="status free">${left === 1 ? "1 ledig plats" : `${left} lediga platser`} av ${s.capacity}</span>`;
+    const names = taken
+      ? `<ul class="names" aria-label="Har tackat ja">${s.bookings.map(b => `<li class="${b.mine ? "me" : ""}">${esc(b.name)}${b.seats > 1 ? ` +${b.seats - 1}` : ""}${b.mine ? " (du)" : ""}</li>`).join("")}</ul>`
+      : `<p class="muted small">Ingen har tackat ja än.</p>`;
+    let action;
+    if (mineBooking) action = `<button class="btn" type="button" data-cancel="${esc(mineBooking.id)}" aria-label="Avboka ${esc(when)}">Avboka</button>`;
+    else if (full) action = `<button class="btn" type="button" disabled>Fullbokad</button>`;
+    else action = `<button class="btn primary" type="button" data-book="${esc(s.id)}" aria-label="Tacka ja till ${esc(when)}">Tacka ja</button>`;
+    return `<article class="slot ${full ? "is-full" : ""} ${mineBooking ? "is-mine" : ""}" aria-label="${esc(`${timeOf(s.starts_at)} till ${timeOf(s.ends_at)}`)}">
+      <div class="slot-head">
+        <div><div class="slot-time">${timeOf(s.starts_at)}–${timeOf(s.ends_at)}</div>${s.note ? `<div class="slot-note">${esc(s.note)}</div>` : ""}</div>
+        ${status}
+      </div>
+      <div class="seats" aria-hidden="true">${seats}</div>
+      ${names}
+      <div class="slot-actions">
+        ${action}
+        ${isOwner() ? `<button class="link" type="button" data-delete="${esc(s.id)}" aria-label="Ta bort tiden ${esc(when)}">Ta bort tiden</button>` : ""}
+      </div>
+    </article>`;
+  }
+
+  const STATUS = { pending: "Väntar på svar", accepted: "Godkänd", declined: "Avböjd" };
+  function requestHTML(r) {
+    const who = isOwner() ? `<b>${esc(r.name)}</b>${r.people > 1 ? ` · ${r.people} personer` : ""}` : (r.people > 1 ? `${r.people} personer` : "");
+    let actions = "";
+    if (isOwner() && r.status === "pending") {
+      actions = `<div class="row" style="justify-content:flex-start">
+        <button class="btn primary" type="button" data-answer="${esc(r.id)}" data-accept="1">Godkänn</button>
+        <button class="btn" type="button" data-answer="${esc(r.id)}" data-accept="0">Avböj</button></div>`;
+    } else if (!isOwner() && r.status === "pending") {
+      actions = `<div><button class="link" type="button" data-withdraw="${esc(r.id)}">Ta tillbaka förfrågan</button></div>`;
+    }
+    return `<article class="request ${r.status}">
+      <div class="request-head"><b>${esc(span(r))}</b><span class="req-status ${r.status}">${STATUS[r.status] || ""}</span></div>
+      ${who ? `<div class="small">${who}</div>` : ""}
+      ${r.message ? `<div class="small muted">”${esc(r.message)}”</div>` : ""}
+      ${r.answer ? `<div class="small">Svar: ”${esc(r.answer)}”</div>` : ""}
+      ${actions}
+    </article>`;
+  }
+
+  function render() {
+    $("#loading").hidden = state.ready;
+    // Förfrågningar: admins ser öppna först, gästen sina egna.
+    const reqs = [...state.requests].sort((a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || a.starts_at.localeCompare(b.starts_at));
+    $("#requestsBox").hidden = !reqs.length;
+    const pending = reqs.filter(r => r.status === "pending").length;
+    $("#requestsTitle").textContent = isOwner()
+      ? (pending ? `Förfrågningar (${pending} att svara på)` : "Förfrågningar")
+      : "Mina förfrågningar";
+    $("#requestList").innerHTML = reqs.map(requestHTML).join("");
+
+    let list = state.slots;
+    if (state.filter === "free") list = list.filter(s => s.bookings.reduce((n, b) => n + (b.seats || 1), 0) < s.capacity && !s.bookings.some(b => b.mine));
+    if (state.filter === "mine") list = list.filter(s => s.bookings.some(b => b.mine));
+    const groups = new Map();
+    for (const s of list) {
+      const k = dayKey(s.starts_at);
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(s);
+    }
+    $("#days").innerHTML = [...groups.values()].map(slots =>
+      `<section class="day"><h2>${esc(dayLabel(slots[0].starts_at))}</h2>${slots.map(slotHTML).join("")}</section>`).join("");
+    const empty = state.ready && !list.length;
+    $("#empty").hidden = !empty;
+    if (empty) {
+      $("#emptyText").textContent = state.filter === "mine" ? "Du har inga kommande tider."
+        : state.filter === "free" ? "Inga lediga tider just nu."
+        : isOwner() ? "Publicera en tid så kan de andra tacka ja."
+        : "Inga tider är publicerade än. Du kan be om en tid.";
+    }
+    if (isOwner() && pending) document.title = `(${pending}) ${state.info.name} – Bastubokning`;
+    else if (state.info) document.title = `${state.info.name} – Bastubokning`;
+  }
+
+  /* ---------- actions ---------- */
+  async function book(slotId, btn) {
+    btn.disabled = true;
+    try {
+      await rpc("bastu_book", withCode({ p_slot_id: slotId, p_name: myName, p_device: device }));
+      const s = state.slots.find(x => x.id === slotId);
+      toast(`Du har tackat ja! ${s ? `${dayLabel(s.starts_at)} kl. ${timeOf(s.starts_at)}.` : ""}`);
+    } catch (e) { toast(errText(e)); }
+    await load();
+  }
+  async function cancel(bookingId, btn) {
+    const s = state.slots.find(x => x.bookings.some(b => b.id === bookingId));
+    if (!(await confirmBox(`Avboka ${s ? `${dayLabel(s.starts_at)} kl. ${timeOf(s.starts_at)}` : "tiden"}?`, "Avboka"))) return;
+    btn.disabled = true;
+    try { await rpc("bastu_cancel", withCode({ p_booking_id: bookingId, p_device: device })); toast("Avbokat."); }
+    catch (e) { toast(errText(e)); }
+    await load();
+  }
+  async function removeSlot(slotId) {
+    const s = state.slots.find(x => x.id === slotId);
+    const n = s?.bookings.length || 0;
+    if (!(await confirmBox(`Ta bort tiden ${s ? span(s) : ""}?${n ? ` ${n} ${n === 1 ? "person har" : "personer har"} tackat ja.` : ""}`, "Ta bort"))) return;
+    try { await rpc("bastu_delete_slot", withCode({ p_slot_id: slotId, p_device: device })); toast("Tiden är borttagen."); }
+    catch (e) { toast(errText(e)); }
+    await load();
+  }
+  async function withdraw(id) {
+    if (!(await confirmBox("Ta tillbaka förfrågan?", "Ta tillbaka"))) return;
+    try { await rpc("bastu_withdraw_request", withCode({ p_request_id: id, p_device: device })); toast("Förfrågan är borttagen."); }
+    catch (e) { toast(errText(e)); }
+    await load();
+  }
+
+  let answering = null;
+  function openAnswer(id, accept) {
+    const r = state.requests.find(x => x.id === id); if (!r) return;
+    answering = { id, accept };
+    $("#answerTitle").textContent = accept ? "Godkänn förfrågan" : "Avböj förfrågan";
+    $("#answerWhat").textContent = `${r.name}${r.people > 1 ? ` (${r.people} personer)` : ""} · ${span(r)}`;
+    $("#aCapLabel").hidden = !accept;
+    $("#aCap").value = Math.max(4, r.people);
+    $("#aCap").min = r.people;
+    $("#aMsg").value = "";
+    $("#aMsg").placeholder = accept ? "t.ex. Välkomna!" : "t.ex. Tyvärr upptaget den dagen";
+    $("#answerBtn").textContent = accept ? "Godkänn" : "Avböj";
+    $("#answerBtn").className = accept ? "btn primary" : "btn danger";
+    $("#answerDialog").showModal();
+  }
+  $("#answerForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!answering) return;
+    const btn = $("#answerBtn"); btn.disabled = true;
+    try {
+      await rpc("bastu_answer_request", withCode({ p_request_id: answering.id, p_accept: answering.accept,
+        p_capacity: parseInt($("#aCap").value, 10) || 4, p_answer: $("#aMsg").value.trim(), p_name: myName, p_device: device }));
+      $("#answerDialog").close();
+      toast(answering.accept ? "Godkänd. Tiden är publicerad och bokad åt gästen." : "Avböjd.");
+    } catch (er) { toast(errText(er)); }
+    btn.disabled = false; answering = null;
+    await load();
+  });
+
+  const shareUrl = c => `${location.origin}${location.pathname}#kod=${encodeURIComponent(c)}`;
+  const guestCode = () => created?.code || (isOwner() ? state.info?.guest_code : code) || "";
+  async function share() {
+    const c = guestCode();
+    if (!c) { toast("Gästkoden finns inte sparad för den här kalendern."); return; }
+    const name = created?.name || state.info?.name;
+    const text = `Boka bastu${name ? ` i "${name}"` : ""}. Koden är ${c}.`;
+    const url = shareUrl(c);
+    if (navigator.share) {
+      try { await navigator.share({ title: "Bastubokning", text, url }); return; }
+      catch (e) { if (e.name === "AbortError") return; }
+    }
+    copy(`${text}\n${url}`, "Länken är kopierad. Klistra in den i ett meddelande.");
+  }
+
+  /* ---------- forms: publish (owner) and request (guest) ---------- */
+  function setupTimeForm(prefix) {
+    const f = $(`#${prefix}Date`).form;
+    f.querySelectorAll("[aria-invalid]").forEach(i => i.removeAttribute("aria-invalid"));
+    $(`#${prefix}Date`).value = dayKey(new Date());
+    $(`#${prefix}Date`).min = dayKey(new Date());
+  }
+  function readTimes(prefix, errEl) {
+    const fail = (input, msg) => { input.setAttribute("aria-invalid", "true"); errEl.textContent = msg; input.focus(); return null; };
+    $(`#${prefix}Date`).form.querySelectorAll("[aria-invalid]").forEach(i => i.removeAttribute("aria-invalid"));
+    const date = $(`#${prefix}Date`).value, start = $(`#${prefix}Start`).value, end = $(`#${prefix}End`).value;
+    if (!date) return fail($(`#${prefix}Date`), "Välj ett datum.");
+    if (!start) return fail($(`#${prefix}Start`), "Välj en starttid.");
+    if (!end) return fail($(`#${prefix}End`), "Välj en sluttid.");
+    if (end <= start) return fail($(`#${prefix}End`), "Sluttiden måste vara efter starttiden.");
+    if (new Date(`${date}T${end}`) <= new Date()) return fail($(`#${prefix}Date`), "Tiden har redan varit. Välj en senare tid.");
+    return { date, start, end };
+  }
+
+  $("#pRepeat").addEventListener("change", e => { $("#pWeeksLabel").hidden = !e.target.checked; });
+  $("#publishForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#publishErr"); err.textContent = "";
+    const t = readTimes("p", err); if (!t) return;
+    const cap = parseInt($("#pCap").value, 10);
+    if (!(cap >= 1 && cap <= 20)) { $("#pCap").setAttribute("aria-invalid", "true"); err.textContent = "Antal platser ska vara mellan 1 och 20."; return; }
+    const weeks = $("#pRepeat").checked ? parseInt($("#pWeeks").value, 10) : 1;
+    const slots = Array.from({ length: weeks }, (_, i) => {
+      const d = new Date(`${t.date}T00:00`); d.setDate(d.getDate() + 7 * i);
+      const day = dayKey(d);
+      return { starts_at: new Date(`${day}T${t.start}`).toISOString(), ends_at: new Date(`${day}T${t.end}`).toISOString(), capacity: cap, note: $("#pNote").value.trim() };
+    });
+    const btn = $("#publishBtn"); btn.disabled = true;
+    try {
+      const n = await rpc("bastu_add_slots", withCode({ p_slots: slots, p_name: myName, p_device: device }));
+      $("#publishDialog").close();
+      $("#pNote").value = ""; $("#pRepeat").checked = false; $("#pWeeksLabel").hidden = true;
+      toast(n === 1 ? "Tiden är publicerad." : `${n} tider är publicerade.`);
+      await load();
+    } catch (er) { err.textContent = errText(er); }
+    btn.disabled = false;
+  });
+
+  $("#requestForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#requestErr"); err.textContent = "";
+    const t = readTimes("r", err); if (!t) return;
+    const people = parseInt($("#rPeople").value, 10);
+    if (!(people >= 1 && people <= 20)) { $("#rPeople").setAttribute("aria-invalid", "true"); err.textContent = "Antal personer ska vara mellan 1 och 20."; return; }
+    const btn = $("#requestBtn"); btn.disabled = true;
+    try {
+      await rpc("bastu_request", withCode({ p_starts_at: new Date(`${t.date}T${t.start}`).toISOString(), p_ends_at: new Date(`${t.date}T${t.end}`).toISOString(),
+        p_people: people, p_message: $("#rMsg").value.trim(), p_name: myName, p_device: device }));
+      $("#requestDialog").close();
+      $("#rMsg").value = ""; $("#rPeople").value = "1";
+      toast("Förfrågan är skickad. Du får svar här, och som notis om du har slagit på notiser.");
+      await load();
+    } catch (er) { err.textContent = errText(er); }
+    btn.disabled = false;
+  });
+
+  /* ---------- notifications ---------- */
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const pushSupported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  // The app can live in a folder under another app on the same site (for example /VaxtAppen/bastu/).
+  // Only ever use this app's own worker, never one registered higher up by the other app.
+  const swScope = new URL("./", location.href).href;
+  const swRegistration = "serviceWorker" in navigator
+    ? navigator.serviceWorker.register("sw.js", { scope: "./" }).catch(() => null)
+    : Promise.resolve(null);
+
+  // getRegistration answers right away; serviceWorker.ready would wait forever if the worker never started.
+  async function currentSubscription() {
+    if (!pushSupported) return null;
+    const reg = await navigator.serviceWorker.getRegistration(swScope);
+    return reg && reg.scope === swScope ? reg.pushManager.getSubscription() : null;
+  }
+  async function readyRegistration() {
+    const activated = (async () => {
+      const reg = await swRegistration;
+      if (!reg) throw new ApiError("no_worker", "Service worker startade inte");
+      if (reg.active) return reg;
+      const sw = reg.installing || reg.waiting;
+      await new Promise(res => {
+        if (!sw) return res();
+        sw.addEventListener("statechange", () => { if (sw.state === "activated") res(); });
+      });
+      return reg;
+    })();
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new ApiError("no_worker", "Service worker startade inte")), 10000));
+    return Promise.race([activated, timeout]);
+  }
+  function b64ToBytes(b64) {
+    const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+    return Uint8Array.from(raw, c => c.charCodeAt(0));
+  }
+  async function enablePush() {
+    if (await Notification.requestPermission() !== "granted") throw new ApiError("denied", "Notiser nekade");
+    const reg = await readyRegistration();
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(CFG.vapidPublicKey) });
+    await rpc("bastu_save_subscription", withCode({ p_sub: sub.toJSON(), p_device: device }));
+  }
+  async function disablePush() {
+    const sub = await currentSubscription(); if (!sub) return;
+    try { await rpc("bastu_delete_subscription", withCode({ p_endpoint: sub.endpoint })); } catch {}
+    await sub.unsubscribe();
+  }
+  // A device that already has notifications on follows the calendar and role it opened last.
+  async function rebindPush() {
+    try {
+      const sub = await currentSubscription();
+      if (sub && Notification.permission === "granted") await rpc("bastu_save_subscription", withCode({ p_sub: sub.toJSON(), p_device: device }));
+    } catch {}
+  }
+  async function openNotify() {
+    $("#notifyWho").textContent = isOwner()
+      ? "Som admin får du en notis när någon tackar ja, avbokar eller skickar en förfrågan."
+      : "Du får en notis när en admin svarar på din förfrågan och när någon annan tackar ja till en tid du ska på.";
+    const body = $("#notifyBody"), msg = $("#notifyMsg");
+    msg.hidden = true;
+    if (isIOS && !isStandalone) {
+      body.innerHTML = `<p>På iPhone fungerar notiser bara när appen ligger på hemskärmen:</p>
+        <ol class="steps"><li>Tryck på dela-knappen i Safari.</li><li>Välj <b>Lägg till på hemskärmen</b>.</li><li>Öppna Bastu från hemskärmen och tryck på <b>Notiser</b> igen.</li></ol>`;
+    } else if (!pushSupported || !CFG.vapidPublicKey) {
+      body.innerHTML = `<p>Den här webbläsaren kan inte ta emot notiser. Prova Safari, Chrome, Edge eller Firefox.</p>`;
+    } else {
+      const on = !!(await currentSubscription().catch(() => null)) && Notification.permission === "granted";
+      body.innerHTML = `<button class="btn ${on ? "" : "primary"}" type="button" id="pushToggle">${on ? "Stäng av notiser" : "Slå på notiser"}</button>`;
+      if (Notification.permission === "denied") {
+        $("#pushToggle").disabled = true;
+        msg.hidden = false; msg.textContent = "Notiser är blockerade för den här sidan. Tillåt dem i telefonens eller webbläsarens inställningar.";
+      }
+      $("#pushToggle").addEventListener("click", async ev => {
+        const b = ev.currentTarget; b.disabled = true; msg.hidden = true;
+        try {
+          if (on) { await disablePush(); toast("Notiserna är avstängda."); }
+          else { await enablePush(); toast("Notiserna är på."); }
+          $("#notifyDialog").close();
+          updateNotifyBtn();
+        } catch (er) {
+          msg.hidden = false;
+          msg.textContent = er.code === "denied" ? "Du behöver tillåta notiser för att få dem."
+            : er.code === "no_worker" ? "Notiserna kunde inte startas. Ladda om sidan och försök igen." : errText(er);
+          b.disabled = false;
+        }
+      });
+    }
+    $("#notifyDialog").showModal();
+  }
+  async function updateNotifyBtn() {
+    const on = !!(await currentSubscription().catch(() => null)) && "Notification" in window && Notification.permission === "granted";
+    $("#notifyBtn").textContent = on ? "Notiser på" : "Notiser";
+  }
+
+  /* ---------- menu ---------- */
+  function openMenu() {
+    const ownerCode = isOwner() ? code : "";
+    const g = guestCode();
+    $("#menuGuest").hidden = !g;
+    $("#menuCode").textContent = g;
+    $("#menuOwner").hidden = !ownerCode;
+    $("#menuOwnerCode").textContent = ownerCode;
+    $("#menuAdmins").hidden = !isOwner();
+    $("#menuClaim").hidden = isOwner() || state.info?.has_owner !== false;
+    $("#menuDialog").showModal();
+    if (isOwner()) loadAdmins();
+  }
+
+  /* ---------- admins ---------- */
+  async function loadAdmins() {
+    const list = $("#adminList");
+    try {
+      const admins = await rpc("bastu_list_admins", withCode({}));
+      list.innerHTML = admins.map(a => `<li><span>${esc(a.name || "Namnlös admin")}${a.me ? " (du)" : ""}</span>
+        ${admins.length > 1 ? `<button class="link" type="button" data-remove-admin="${esc(a.id)}" data-name="${esc(a.name || "admin")}"
+          aria-label="Ta bort ${esc(a.name || "admin")} som admin">Ta bort</button>` : ""}</li>`).join("");
+    } catch (e) { list.innerHTML = `<li>${esc(errText(e))}</li>`; }
+  }
+  let newAdmin = null;
+  function openAddAdmin() {
+    newAdmin = null;
+    $("#adminAsk").hidden = false; $("#adminDone").hidden = true;
+    $("#adminName").value = "";
+    $("#adminDialog").showModal();
+    $("#adminName").focus();
+  }
+  $("#adminForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const n = $("#adminName").value.trim(); if (!n) return;
+    const btn = $("#adminBtn"); btn.disabled = true;
+    try {
+      newAdmin = await rpc("bastu_add_admin", withCode({ p_name: n }));
+      $("#adminDoneText").textContent = `${newAdmin.name} är admin. Skicka adminkoden till ${newAdmin.name}. Den visas bara nu, men du kan alltid skapa en ny.`;
+      $("#adminCode").textContent = newAdmin.code;
+      $("#adminAsk").hidden = true; $("#adminDone").hidden = false;
+      loadAdmins();
+    } catch (er) { toast(errText(er)); }
+    btn.disabled = false;
+  });
+  async function shareAdmin() {
+    if (!newAdmin) return;
+    const text = `Du är admin för bastun "${state.info?.name}". Din adminkod är ${newAdmin.code}. Behåll den själv.`;
+    const url = shareUrl(newAdmin.code);
+    if (navigator.share) {
+      try { await navigator.share({ title: "Adminkod till bastun", text, url }); return; }
+      catch (er) { if (er.name === "AbortError") return; }
+    }
+    copy(`${text}\n${url}`, "Länken är kopierad. Skicka den bara till den nya adminen.");
+  }
+  async function removeAdmin(id, name) {
+    if (!(await confirmBox(`Ta bort ${name} som admin? Dennes adminkod slutar fungera direkt.`, "Ta bort"))) return;
+    try {
+      await rpc("bastu_remove_admin", withCode({ p_admin_id: id }));
+      toast(`${name} är inte längre admin.`);
+      loadAdmins();
+    } catch (e) { toast(errText(e)); }
+  }
+  async function claim() {
+    if (!(await confirmBox("Bli admin för kalendern? Då kan du publicera tider, svara på förfrågningar och lägga till fler admins.", "Bli admin"))) return;
+    try {
+      const { owner_code } = await rpc("bastu_claim_owner", withCode({ p_name: myName }));
+      $("#menuDialog").close();
+      await open(owner_code);
+      openMenu();
+      toast("Du är admin. Spara adminkoden.");
+    } catch (e) { toast(errText(e)); }
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener("click", async e => {
+    const t = e.target.closest("button");
+    if (!t) return;
+    if (t.dataset.book) return book(t.dataset.book, t);
+    if (t.dataset.cancel) return cancel(t.dataset.cancel, t);
+    if (t.dataset.delete) return removeSlot(t.dataset.delete);
+    if (t.dataset.withdraw) return withdraw(t.dataset.withdraw);
+    if (t.dataset.answer) return openAnswer(t.dataset.answer, t.dataset.accept === "1");
+    if (t.dataset.removeAdmin) return removeAdmin(t.dataset.removeAdmin, t.dataset.name);
+    if (t.dataset.filter) {
+      state.filter = t.dataset.filter;
+      document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", String(b === t)));
+      return render();
+    }
+    switch (t.dataset.action) {
+      case "show-create": return lockView("create");
+      case "hide-create": return lockView("join");
+      case "share": return share();
+      case "copy-owner": return copy(created?.owner_code || code, "Adminkoden är kopierad. Spara den på ett säkert ställe.");
+      case "add-admin": return openAddAdmin();
+      case "share-admin": return shareAdmin();
+      case "enter-created": {
+        const c = created.owner_code;
+        try { await open(c); created = null; } catch (er) { lockView("join"); $("#codeErr").textContent = errText(er); }
+        return;
+      }
+      case "publish": setupTimeForm("p"); $("#publishErr").textContent = ""; $("#publishDialog").showModal(); $("#pDate").focus(); return;
+      case "request": setupTimeForm("r"); $("#requestErr").textContent = ""; $("#requestDialog").showModal(); $("#rDate").focus(); return;
+      case "notify": return openNotify();
+      case "rename": $("#renameInput").value = myName; $("#renameDialog").showModal(); return;
+      case "menu": return openMenu();
+      case "claim": return claim();
+      case "leave": $("#menuDialog").close(); return lock("");
+      case "close-dialog": t.closest("dialog").close(); return;
+    }
+  });
+
+  $("#codeForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector("button"); btn.disabled = true;
+    $("#codeErr").textContent = "";
+    try { await open($("#codeInput").value.trim()); $("#codeInput").value = ""; }
+    catch (er) { code = ""; $("#codeErr").textContent = er.code === "wrong_code" ? "Den koden finns inte. Kontrollera stavningen." : errText(er); }
+    btn.disabled = false;
+  });
+
+  let created = null;
+  $("#createForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("#calName").value.trim();
+    if (!name) { $("#createErr").textContent = "Ge bastun ett namn."; return; }
+    const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true;
+    try {
+      created = await rpc("bastu_create_calendar", { p_name: name, p_admin_name: myName });
+      store.set(KEY.owner, created.owner_code);
+      $("#createdCode").textContent = created.code;
+      $("#createdOwnerCode").textContent = created.owner_code;
+      $("#calName").value = "";
+      lockView("created");
+    } catch (er) { $("#createErr").textContent = errText(er); }
+    btn.disabled = false;
+  });
+
+  $("#nameForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const n = $("#nameInput").value.trim();
+    if (!n) return;
+    myName = n; store.set(KEY.name, n);
+    if (isOwner()) rpc("bastu_rename_admin", withCode({ p_name: n })).catch(() => {});
+    enterApp();
+  });
+
+  $("#renameForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const n = $("#renameInput").value.trim();
+    if (!n) return;
+    myName = n; store.set(KEY.name, n);
+    $("#meName").textContent = n;
+    $("#renameDialog").close();
+    try { await rpc("bastu_rename_me", withCode({ p_name: n, p_device: device })); } catch {}
+    if (isOwner()) rpc("bastu_rename_admin", withCode({ p_name: n })).catch(() => {});
+    toast("Namnet är ändrat.");
+    load();
+  });
+
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && state.ready) load(); });
+  window.addEventListener("online", () => state.ready && load());
+  setInterval(() => { if (!document.hidden && state.ready) load(); }, 30000);
+
+  /* ---------- start ---------- */
+  if (!CFG.supabaseUrl) {
+    document.body.innerHTML = `<div class="center"><div class="card narrow"><h1>Bastubokning</h1><p>Appen är inte inställd än. Fyll i config.js.</p></div></div>`;
+    return;
+  }
+  updateNotifyBtn();
+  // A shared link looks like …/#kod=ABCD-EFGH-JKLM. The part after # is never sent to a server.
+  const linkCode = decodeURIComponent((location.hash.match(/kod=([^&]+)/) || [])[1] || "").trim();
+  if (linkCode) history.replaceState(null, "", location.pathname + location.search);
+  // Someone who owns this calendar keeps owner rights even if they open a guest link on the same device.
+  const startCode = linkCode && !(code && store.get(KEY.owner) === code) ? linkCode : code || linkCode;
+  if (startCode) {
+    if (startCode === code && myName) show("app");
+    open(startCode).catch(er => {
+      if (er.code === "offline" && startCode === code && myName) { $("#offline").hidden = false; return; }
+      lock(er.code === "wrong_code" ? "Koden fungerar inte. Kontrollera den eller fråga efter en ny." : errText(er));
+      if (linkCode) $("#codeInput").value = linkCode;
+    });
+  } else lock("");
+})();
+</script>
+</body>
+</html>
