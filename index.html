@@ -162,6 +162,23 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 .place-address { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
 .place-note { margin: 2px 0 0; }
 .place .btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Jultema (20 november–6 januari). Färgerna för ledig och fullbokad lämnas orörda. */
+:root.xmas { --accent: #a3242b; --accent-ink: #ffffff; --accent-soft: #f6e1dc; --gold: #8a6512; --snow: #b8c9da; }
+@media (prefers-color-scheme: dark) {
+  :root.xmas { --accent: #f2a09a; --accent-ink: #2b0d0b; --accent-soft: #3d1c1a; --gold: #e3c271; --snow: #ffffff; }
+}
+.xmas body { background-image: radial-gradient(circle at 10% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 45%),
+  radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 40%); background-attachment: fixed; }
+.xmas-greeting { margin: 0 0 2px; font-weight: 700; color: var(--gold); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.xmas-flakes { letter-spacing: 2px; }
+.xmas-greeting .link { font-weight: 400; color: var(--muted); }
+.xmas .day h2::after { content: " ✦"; color: var(--gold); }
+.snow { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.snow span { position: absolute; top: -24px; color: var(--snow); opacity: .75; animation: snowfall linear infinite; text-shadow: 0 0 2px rgba(0,0,0,.08); }
+@keyframes snowfall { to { transform: translate(var(--drift), 105vh) rotate(180deg); } }
+@media (prefers-reduced-motion: reduce) { .snow { display: none; } }
+#app, #lock, #nameScreen { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -225,6 +242,8 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 <div class="wrap" id="app" hidden>
   <header class="top">
     <div>
+      <p class="xmas-greeting" hidden><span class="xmas-flakes" aria-hidden="true">✦ ❄ ✦</span> <span class="xmas-text"></span>
+        <button class="link small" type="button" data-action="toggle-snow" hidden></button></p>
       <h1 id="calTitle">Bastu</h1>
       <p class="muted small"><span class="role" id="roleBadge"></span> <b id="meName"></b> · <button class="link" type="button" data-action="rename">Ändra namn</button></p>
     </div>
@@ -529,11 +548,60 @@ window.BASTU_CONFIG = {
   /* ---------- dates ---------- */
   const dayKey = d => new Date(d).toLocaleDateString("sv-SE");
   const timeOf = d => new Date(d).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  // Helgdagar runt jul och nyår får ett namn efter datumet.
+  const HOLIDAYS = { "12-24": "Julafton", "12-25": "Juldagen", "12-26": "Annandag jul", "12-31": "Nyårsafton", "01-01": "Nyårsdagen", "01-06": "Trettondedag jul" };
   function dayLabel(d) {
     const k = dayKey(d), today = dayKey(new Date()), tomorrow = dayKey(Date.now() + DAY);
     const long = new Date(d).toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" });
-    return k === today ? `Idag, ${long}` : k === tomorrow ? `Imorgon, ${long}` : long.charAt(0).toUpperCase() + long.slice(1);
+    const holiday = HOLIDAYS[k.slice(5)];
+    const label = k === today ? `Idag, ${long}` : k === tomorrow ? `Imorgon, ${long}` : long.charAt(0).toUpperCase() + long.slice(1);
+    return holiday ? `${label} · ${holiday}` : label;
   }
+
+  /* ---------- jultema: 20 november–6 januari, slår på och av av sig själv ---------- */
+  (function christmas() {
+    const now = new Date(), m = now.getMonth() + 1, d = now.getDate();
+    if (!((m === 11 && d >= 20) || m === 12 || (m === 1 && d <= 6))) return;
+    document.documentElement.classList.add("xmas");
+    const greeting = m === 12 && d >= 24 && d <= 26 ? "God jul!" : (m === 12 && d >= 27) || m === 1 ? "Gott nytt år!" : "Snart är det jul!";
+    document.querySelectorAll(".xmas-greeting").forEach(el => {
+      el.hidden = false;
+      el.querySelector(".xmas-text").textContent = greeting;
+    });
+    // Snöfall bara för den som inte har stängt av rörelser, och bara om man inte själv har stängt av det.
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const snowKey = "bastu.snow";
+    let snow = null;
+    function setSnow(on) {
+      if (snow) { snow.remove(); snow = null; }
+      document.querySelectorAll("[data-action=toggle-snow]").forEach(b => {
+        b.hidden = calm.matches;
+        b.textContent = on ? "Stäng av snön" : "Låt det snöa";
+        b.setAttribute("aria-pressed", String(on));
+      });
+      if (!on || calm.matches) return;
+      snow = document.createElement("div");
+      snow.className = "snow"; snow.setAttribute("aria-hidden", "true");
+      for (let i = 0; i < 24; i++) {
+        const f = document.createElement("span");
+        f.textContent = "❄";
+        f.style.left = `${Math.random() * 100}%`;
+        f.style.fontSize = `${10 + Math.random() * 12}px`;
+        f.style.animationDuration = `${9 + Math.random() * 10}s`;
+        f.style.animationDelay = `${-Math.random() * 18}s`;
+        f.style.setProperty("--drift", `${(Math.random() - 0.5) * 80}px`);
+        snow.append(f);
+      }
+      document.body.append(snow);
+    }
+    const snowOn = () => store.get(snowKey) !== "off";
+    setSnow(snowOn());
+    calm.addEventListener?.("change", () => setSnow(snowOn()));
+    document.addEventListener("click", e => {
+      const b = e.target.closest("[data-action=toggle-snow]"); if (!b) return;
+      const on = !snowOn(); store.set(snowKey, on ? "on" : "off"); setSnow(on);
+    });
+  })();
   const span = x => `${dayLabel(x.starts_at)} ${timeOf(x.starts_at)}–${timeOf(x.ends_at)}`;
 
   /* ---------- feedback ---------- */
