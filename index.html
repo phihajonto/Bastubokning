@@ -182,6 +182,15 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 .member-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: min(55vh, 460px); overflow-y: auto; }
 .member { padding: 8px 0; border-bottom: 1px solid var(--line); }
 .member:last-child { border-bottom: 0; }
+.hero { display: grid; justify-items: center; text-align: center; gap: 8px; }
+.hero-icon { width: 76px; height: 76px; border-radius: 18px; box-shadow: 0 6px 20px rgb(0 0 0 / .15); }
+.hero h1 { font-size: 1.9rem; }
+.hero-tagline { color: var(--muted); max-width: 32ch; text-wrap: balance; }
+.features { list-style: none; margin: 0; padding: 12px 14px; display: grid; gap: 8px; background: var(--accent-soft); border-radius: 12px; font-size: .95rem; }
+.features li { padding-left: 26px; position: relative; }
+.features li::before { content: ""; position: absolute; left: 4px; top: .45em; width: 12px; height: 7px; border-left: 2.5px solid var(--accent); border-bottom: 2.5px solid var(--accent); transform: rotate(-45deg); }
+.lock-section h2 { font-size: 1.15rem; }
+.lock-foot { text-align: center; }
 </style>
 </head>
 <body>
@@ -190,20 +199,33 @@ dialog h3 { font-size: 1.05rem; margin: 0; }
 <!-- Startsida: skriv in kod eller skapa en kalender -->
 <div class="center" id="lock" hidden>
   <div class="card narrow">
-    <h1><span aria-hidden="true">🧖</span> Bastubokning</h1>
+    <div class="hero">
+      <svg class="hero-icon" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+        <rect width="512" height="512" rx="104" fill="#7a3b1d"/>
+        <g fill="none" stroke="#f7d9c2" stroke-width="26" stroke-linecap="round"><path d="M176 120c-30 30 30 50 0 84M256 104c-30 34 30 56 0 96M336 120c-30 30 30 50 0 84"/></g>
+        <rect x="104" y="268" width="304" height="40" rx="14" fill="#e9a46f"/><rect x="136" y="332" width="240" height="40" rx="14" fill="#e9a46f"/>
+        <path d="M150 308v92M362 308v92" stroke="#e9a46f" stroke-width="24" stroke-linecap="round"/>
+      </svg>
+      <h1>Bastubokning</h1>
+      <p class="hero-tagline">Appen för er bastu. Se lediga tider, boka en plats och snacka ihop er inför passet.</p>
+    </div>
 
-    <form id="codeForm" class="stack">
-      <p class="muted">Skriv in koden till er bastukalender: gästkoden, eller din adminkod om du är admin.</p>
+    <ul class="features" id="lockFeatures">
+      <li><b>Lediga tider</b> – se direkt hur många platser som finns kvar.</li>
+      <li><b>Boka med ett tryck</b> – och se vilka andra som kommer.</li>
+      <li><b>Notiser och chatt</b> – när tider publiceras, bastun är varm eller någon skriver.</li>
+    </ul>
+
+    <form id="codeForm" class="stack lock-section">
+      <h2>Har du fått en kod?</h2>
+      <p class="muted small">Koden får du av admin, den som har bastun. Har du fått en länk räcker det att öppna den.</p>
       <label for="codeInput" class="sr-only">Kod</label>
       <input id="codeInput" class="code-input" autocapitalize="characters" autocomplete="off" spellcheck="false" required placeholder="ABCD-EFGH-JKLM" aria-describedby="codeErr">
-      <button class="btn primary" type="submit">Öppna</button>
+      <button class="btn primary" type="submit">Öppna bastukalendern</button>
       <p class="err" id="codeErr" role="alert"></p>
     </form>
 
-    <div class="stack divider" id="createToggle">
-      <p class="muted">Har ni ingen kalender än?</p>
-      <button class="btn" type="button" data-action="show-create">Skapa en bastukalender</button>
-    </div>
+    <p class="muted small lock-foot" id="lockFoot">Ingen inloggning och ingen appbutik. Lägg appen på hemskärmen för att få notiser.</p>
 
     <form id="createForm" class="stack" hidden>
       <h2>Ny bastukalender</h2>
@@ -650,7 +672,8 @@ window.BASTU_CONFIG = {
   }
   function lockView(view) {
     $("#codeForm").hidden = view !== "join";
-    $("#createToggle").hidden = view !== "join";
+    $("#lockFeatures").hidden = view !== "join";
+    $("#lockFoot").hidden = view !== "join";
     $("#createForm").hidden = view !== "create";
     $("#createdPanel").hidden = view !== "created";
     if (view === "create") setTimeout(() => $("#calName").focus(), 30);
@@ -1469,6 +1492,8 @@ window.BASTU_CONFIG = {
       if (linkCode) $("#codeInput").value = linkCode;
     });
   } else lock("");
+  // Att skapa en ny kalender visas inte på startsidan. Det går via adressen …/#skapa om det någon gång behövs.
+  if (!startCode && /skapa/.test(location.hash)) { history.replaceState(null, "", location.pathname + location.search); lockView("create"); }
 })();
 </script>
 </body>
